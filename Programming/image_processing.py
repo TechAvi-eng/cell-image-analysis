@@ -6,10 +6,10 @@ from matplotlib import colormaps
 import numpy as np
 
 # Set the path to the folder containing the image
-folder_path = 'png images'
+folder_path = 'testing_images'
 
 # Set the name of the image file
-image_name = 'NOISY1.png'
+image_name = '1_00001.png'
 
 # Obtaining the image path
 image_1 = os.path.join(folder_path, image_name)
@@ -19,10 +19,10 @@ img = Image.open(image_1)
 img_gray = img.convert('L')
 
 # Display original image
-#img.show()
+img.show()
 
 # Display grayscale image
-#img_gray.show()
+img_gray.show()
 
 # Wavlet decomposition (2 level)
 n = 2 # specify the level of decomposition
