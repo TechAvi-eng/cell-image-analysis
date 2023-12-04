@@ -2,7 +2,5 @@ matplotlib
 numpy
 pandas
 pathlib
-OpenCV
-os
-PIL
-pywt
+pillow
+PyWavelets
