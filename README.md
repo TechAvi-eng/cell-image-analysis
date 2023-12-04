@@ -1,1 +1,1 @@
-# cell-image-analysis
+# Cell Image Analysis Individual Project
