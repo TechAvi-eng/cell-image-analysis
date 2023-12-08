@@ -33,8 +33,8 @@ def gray_conversion(img):
 def wavelet_coefficients(img_gray):
     
     # Wavlet decomposition (2 level)
-    n = 1 # level of decomposition
-    w = 'db18' # mother wavelet type
+    n = 2 # level of decomposition
+    w = 'haar' # mother wavelet type
 
     coeffs = pywt.wavedec2(img_gray, wavelet=w, level=n) # perform wavelet decompositionq
 
@@ -48,7 +48,7 @@ def wavelet_coefficients(img_gray):
     arr, coeff_slices = pywt.coeffs_to_array(coeffs) # convert the wavelet coefficients into an array 'arr', and provides information about coefficients arrangement 'coeff_slices', which is later used to reconstruct the image
 
     # Plot the wavelet coefficients
-    plt.imshow(arr, cmap='gray_r', vmin = -0.25, vmax = 0.75) # display the 2D array 'arr' as an image, with the colormap 'gray_r' (reverse gray), and the range of values to be displayed is between -0.25 and 0.75
+    plt.imshow(arr, cmap='gray', vmin = -0.25, vmax = 0.75) # display the 2D array 'arr' as an image, with the colormap 'gray_r' (reverse gray), and the range of values to be displayed is between -0.25 and 0.75
     plt.rcParams["figure.figsize"] = (8,8) # set the size of the figure
     plt.show() # display the figure
     
@@ -57,7 +57,7 @@ def wavelet_decomposition_removal(img_gray):
 
     # Wavlet decomposition (2 level)
     n = 4 # level of decomposition
-    w = 'haar' # mother wavelet type 
+    w = 'db18' # mother wavelet type 
 
     coeffs = pywt.wavedec2(img_gray, wavelet=w, level=n)
 
@@ -82,7 +82,7 @@ def wavelet_decomposition_removal(img_gray):
     #     plt.show()
 
     # After deciding on the percentage of coefficients to keep, store the new image
-    keep = 0.05
+    keep = 0.01
     thresh = Csort[int(np.floor((1-keep)*len(Csort)))]
     ind = np.abs(coeff_arr) > thresh
     Cfilt = coeff_arr * ind # filter out the wavelet coefficients that are less than the threshold
@@ -102,13 +102,13 @@ def wavelet_decomposition_removal(img_gray):
 
 def bw_conversion(img):
     # Display the image
-    #img.show()
+    img.show()
 
     # Convert the image to black and white binary image using a threshold value of 128
     img_bw = img.point(lambda x: 0 if x < 123 else 255, '1')
 
     # Display the black and white binary image
-    #img_bw.show()
+    img_bw.show()
 
     return img_bw
 
@@ -118,12 +118,13 @@ def cell_counting(img_bw):
     This function counts the number of cells in the image, by adding ellipses around all circles detected in the image, even if they have gaps. This function then shows the image with the ellipses drawn around the circles.
     """
 
+
 def main():
     # Set the path to the folder containing the image
     folder_path = 'Programming/testing_images'
 
     # Set the name of the image file
-    image_name = '3_00013.png'
+    image_name = '1_00001.png'
 
     # Import the image and open it
     img = import_image(folder_path, image_name)
@@ -132,7 +133,7 @@ def main():
     img_gray = gray_conversion(img)
 
     # Perform wavelet decomposition - normalisation of coefficients
-    # wavelet_coefficients(img_gray)
+    #wavelet_coefficients(img_gray)
 
     # Perform wavelet decomposition - removing insignificant coefficients
     img_post_wavelet = wavelet_decomposition_removal(img_gray)
@@ -141,7 +142,7 @@ def main():
     img_bw = bw_conversion(img_post_wavelet)
 
     # Counting the number of cells
-    cell_count = cell_counting(img_bw)
+    #cell_count = cell_counting(img_bw)
 
 if __name__ == "__main__":
     main()
