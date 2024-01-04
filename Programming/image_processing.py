@@ -1,33 +1,58 @@
+import sys
+import matplotlib.pyplot as plt
+import numpy as np
 import os
 from PIL import Image, ImageDraw
 import pywt # PyWavelets package
-from matplotlib import pyplot as plt
 import os
-from PIL import Image
 import cv2
-import numpy as np
 
 def import_image(folder_path, image_name):
-    # Obtaining the image path
+    # Joining the image path
     image_path = os.path.join(folder_path, image_name)
 
-    # Open the image
-    img = Image.open(image_path)
-    # img.show()
+    image = cv2.imread(image_path) # read the image
+    
+    cv2.imshow('Image', image) # display the image
+    cv2.waitKey(0) 
+    cv2.destroyAllWindows()
 
-    # Return the image path
-    return img
+    # Obtain the bit depth of the image
+    bit_depth = image.dtype
+    print('Bit depth of the raw image: ', bit_depth)
+
+    return image # return the image (array)
 
 
-def gray_conversion(img):
+def gray_conversion(image):
     # Converting the image to grayscale
-    img_gray = img.convert('L')
+    img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Display grayscale image
-    # img_gray.show()
+    cv2.imshow('Grayscale Image', img_gray)
+
+    # Save grayscale image
+    output_path = 'Programming/images/gray_image.png'
+    cv2.imwrite(output_path, img_gray)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    # Obtain the bit depth of the grayscale image
+    bit_depth = image.dtype
+    print('Bit depth of the grayscale image: ', bit_depth)
 
     # Return the grayscale image
     return img_gray
+
+
+def image_info(image):
+    print(f'Mean: {image.mean():.2f}')
+    print(f'Minimum: {image.min()}')
+    print(f'Maximum: {image.max()}')
+
+    plt.hist(image.flatten(), bins=100)
+    plt.show()
 
 
 def wavelet_coefficients(img_gray):
@@ -113,7 +138,7 @@ def bw_conversion(img):
     return img_bw
 
 
-def cell_counting(img_bw):
+#def cell_counting(img_bw):
     """
     This function counts the number of cells in the image, by adding ellipses around all circles detected in the image, even if they have gaps. This function then shows the image with the ellipses drawn around the circles.
     """
@@ -121,25 +146,29 @@ def cell_counting(img_bw):
 
 def main():
     # Set the path to the folder containing the image
-    folder_path = 'Programming/testing_images'
+    folder_path = 'Programming/images'
 
     # Set the name of the image file
     image_name = '1_00001.png'
 
-    # Import the image and open it
-    img = import_image(folder_path, image_name)
+    # Import the image
+    image = import_image(folder_path, image_name)
     
     # Convert the image to grayscale
-    img_gray = gray_conversion(img)
+    img_gray = gray_conversion(image)
+
+    # Display the image information
+    image_info(image)
+    image_info(img_gray)
 
     # Perform wavelet decomposition - normalisation of coefficients
     #wavelet_coefficients(img_gray)
 
     # Perform wavelet decomposition - removing insignificant coefficients
-    img_post_wavelet = wavelet_decomposition_removal(img_gray)
+    #img_post_wavelet = wavelet_decomposition_removal(img_gray)
 
     # Display the reconstructed image
-    img_bw = bw_conversion(img_post_wavelet)
+    #img_bw = bw_conversion(img_post_wavelet)
 
     # Counting the number of cells
     #cell_count = cell_counting(img_bw)
