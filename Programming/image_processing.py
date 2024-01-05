@@ -28,6 +28,9 @@ def gray_conversion(image):
     # Converting the image to grayscale
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    # Converting the image to 8-bit unsigned integer
+    img_gray = cv2.convertScaleAbs(img_gray)
+
     # Display grayscale image
     cv2.imshow('Grayscale Image', img_gray)
 
@@ -47,11 +50,25 @@ def gray_conversion(image):
 
 
 def image_info(image):
+    # Display the colour information of the image
     print(f'Mean: {image.mean():.2f}')
     print(f'Minimum: {image.min()}')
     print(f'Maximum: {image.max()}')
 
-    plt.hist(image.flatten(), bins=100)
+    plt.hist(image.flatten(), bins=100, range=(0, 255))
+    plt.show()
+
+
+def image_normalisation(image):
+    # Normalise the image
+    image_normalised = image/255
+
+    # Display the colour information of the image
+    print(f'Mean: {image_normalised.mean():.2f}')
+    print(f'Minimum: {image_normalised.min()}')
+    print(f'Maximum: {image_normalised.max()}')
+
+    plt.hist(image_normalised.flatten(), bins=100, range=(0, 1))
     plt.show()
 
 
@@ -158,8 +175,10 @@ def main():
     img_gray = gray_conversion(image)
 
     # Display the image information
-    image_info(image)
     image_info(img_gray)
+
+    # Normalise the image pixel density from 0 to 1 and display information
+    image_normalisation(img_gray)
 
     # Perform wavelet decomposition - normalisation of coefficients
     #wavelet_coefficients(img_gray)
