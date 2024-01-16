@@ -8,8 +8,7 @@ import os
 import cv2
 
 def import_image(folder_path, image_name):
-    # Joining the image path
-    image_path = os.path.join(folder_path, image_name)
+    image_path = os.path.join(folder_path, image_name) + '.png' # image path 
 
     image = cv2.imread(image_path) # read the image
     
@@ -19,12 +18,12 @@ def import_image(folder_path, image_name):
 
     # Obtain the bit depth of the image
     bit_depth = image.dtype
-    print('Bit depth of the raw image: ', bit_depth)
+    print('\nBit depth of the raw image: ', bit_depth)
 
     return image # return the image (array)
 
 
-def gray_conversion(image):
+def gray_conversion(image, image_name):
     # Converting the image to grayscale
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -35,7 +34,7 @@ def gray_conversion(image):
     cv2.imshow('Grayscale Image', img_gray)
 
     # Save grayscale image
-    output_path = 'Programming/images/gray_image.png'
+    output_path = 'Programming/images/' + image_name + '_gray.png'
     cv2.imwrite(output_path, img_gray)
 
     cv2.waitKey(0)
@@ -51,7 +50,7 @@ def gray_conversion(image):
 
 def image_info(image):
     # Display the colour information of the image
-    print(f'Mean: {image.mean():.2f}')
+    print(f'\nMean: {image.mean():.2f}')
     print(f'Minimum: {image.min()}')
     print(f'Maximum: {image.max()}')
 
@@ -63,11 +62,11 @@ def image_info(image):
 
 
 def image_normalisation(image):
-    # Normalise the image
+    # Normalise the image pixel intensity from 0 to 1
     image_normalised = image/255
 
     # Display the colour information of the image
-    print(f'Mean: {image_normalised.mean():.2f}')
+    print(f'\nMean: {image_normalised.mean():.2f}')
     print(f'Minimum: {image_normalised.min()}')
     print(f'Maximum: {image_normalised.max()}')
 
@@ -75,6 +74,35 @@ def image_normalisation(image):
     plt.xlabel('Pixel intensity')
     plt.ylabel('Number of pixels')
     plt.show()
+
+
+def wavelet_decomposition(img_gray, wavelet_function, n):
+    """ Completes discrete wavelet transformation on the gray image, downsampling the image by 2 after each level, and outputs the reconstructed image
+    
+    Args:
+        img_gray: The image to have DWT applied on it
+        wavelet_function: The wavelet function which will be convoluted with signal
+        n: The levels of decomposition
+
+    Returns:
+        decomposed_image: The reconstructued image after DWT has been applied
+    """
+
+    coeffs = pywt.wavedec2(img_gray, wavelet_function, level=n)
+
+    # Modify the coefficients to perform downsampling by 2 after each level
+    for i in range(1, n+1):
+        coeffs[i] = tuple(map(lambda x: cv2.pyrDown(x), coeffs[i]))
+
+    # Reconstruct the image using the modified coefficients
+    reconstructed_image = pywt.waverec2(coeffs, wavelet_function)
+
+    cv2.imshow('Original Image', img_gray)
+    cv2.imshow('Reconstructed Image', reconstructed_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    return reconstructed_image
 
 
 def wavelet_coefficients(img_gray):
@@ -160,7 +188,7 @@ def bw_conversion(img):
     return img_bw
 
 
-#def cell_counting(img_bw):
+def cell_counting(img_bw):
     """
     This function counts the number of cells in the image, by adding ellipses around all circles detected in the image, even if they have gaps. This function then shows the image with the ellipses drawn around the circles.
     """
@@ -171,19 +199,24 @@ def main():
     folder_path = 'Programming/images'
 
     # Set the name of the image file
-    image_name = '1_00001.png'
+    image_name = '1_00001'
 
     # Import the image
     image = import_image(folder_path, image_name)
     
     # Convert the image to grayscale
-    img_gray = gray_conversion(image)
+    img_gray = gray_conversion(image, image_name)
 
     # Display the image information
     image_info(img_gray)
 
     # Normalise the image pixel density from 0 to 1 and display information
     image_normalisation(img_gray)
+
+    # Complete Discrete Wavlet Transform on the image
+    wavelet_function = 'db18' # wavelet function
+    n = 4 # level of decomposition
+    wavelet_decomposition(img_gray, wavelet_function, n)
 
     # Perform wavelet decomposition - normalisation of coefficients
     #wavelet_coefficients(img_gray)
