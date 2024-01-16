@@ -55,7 +55,10 @@ def image_info(image):
     print(f'Minimum: {image.min()}')
     print(f'Maximum: {image.max()}')
 
+    # Display the histogram for number of pixels against pixel intensity
     plt.hist(image.flatten(), bins=100, range=(0, 255))
+    plt.xlabel('Pixel intensity')
+    plt.ylabel('Number of pixels')
     plt.show()
 
 
@@ -69,6 +72,8 @@ def image_normalisation(image):
     print(f'Maximum: {image_normalised.max()}')
 
     plt.hist(image_normalised.flatten(), bins=100, range=(0, 1))
+    plt.xlabel('Pixel intensity')
+    plt.ylabel('Number of pixels')
     plt.show()
 
 
