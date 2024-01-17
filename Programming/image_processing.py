@@ -1,26 +1,40 @@
-import sys
-import matplotlib.pyplot as plt
 import numpy as np
-import os
-from PIL import Image, ImageDraw
-import pywt # PyWavelets package
-import os
+import pywt
+import pywt.data
+import matplotlib.image as mping
+import matplotlib.pyplot as plt
 import cv2
+import os
+
+# import sys
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import os
+from PIL import Image
+# import pywt # PyWavelets package
+# import os
+# import cv2
 
 def import_image(folder_path, image_name):
     image_path = os.path.join(folder_path, image_name) + '.png' # image path 
 
-    image = cv2.imread(image_path) # read the image
+    # image = cv2.imread(image_path) # read the image
     
-    cv2.imshow('Image', image) # display the image
-    cv2.waitKey(0) 
-    cv2.destroyAllWindows()
+    # cv2.imshow('Image', image) # display the image
+    # cv2.waitKey(0) 
+    # cv2.destroyAllWindows()
 
-    # Obtain the bit depth of the image
-    bit_depth = image.dtype
-    print('\nBit depth of the raw image: ', bit_depth)
+    # # Obtain the bit depth of the image
+    # bit_depth = image.dtype
+    # print('\nBit depth of the raw image: ', bit_depth)
 
-    return image # return the image (array)
+    # return image # return the image (array)
+
+    original_image = Image.open(image_path) # open the image
+    grayscale_image = original_image.convert('L') # convert the image to grayscale
+
+    return grayscale_image
+
 
 
 def gray_conversion(image, image_name):
@@ -75,34 +89,44 @@ def image_normalisation(image):
     plt.ylabel('Number of pixels')
     plt.show()
 
+        
+    cv2.imshow('Normalised Grayscale Image', image_normalised)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-def wavelet_decomposition(img_gray, wavelet_function, n):
+
+def dwt(img_gray):
     """ Completes discrete wavelet transformation on the gray image, downsampling the image by 2 after each level, and outputs the reconstructed image
     
     Args:
         img_gray: The image to have DWT applied on it
-        wavelet_function: The wavelet function which will be convoluted with signal
-        n: The levels of decomposition
 
     Returns:
         decomposed_image: The reconstructued image after DWT has been applied
     """
 
-    coeffs = pywt.wavedec2(img_gray, wavelet_function, level=n)
+    # wavelet_function = 'db18' # wavelet function
+    # n = 2 # level of decomposition
 
-    # Modify the coefficients to perform downsampling by 2 after each level
-    for i in range(1, n+1):
-        coeffs[i] = tuple(map(lambda x: cv2.pyrDown(x), coeffs[i]))
+    # dwt_coeffs = pywt.wavedec2(img_gray, wavelet_function, level = n) # perform wavelet decomposition
+    # # imgr = pywt.waverec2(dwt_coeffs, wavelet_function) # perform inverse wavelet transform to reconstruct the image
+    # # imgr = np.uint8(imgr) # convert the reconstructed image to 8-bit unsigned integer
 
-    # Reconstruct the image using the modified coefficients
-    reconstructed_image = pywt.waverec2(coeffs, wavelet_function)
+    # arr, coeff_slices = pywt.coeffs_to_array(dwt_coeffs)
 
-    cv2.imshow('Original Image', img_gray)
-    cv2.imshow('Reconstructed Image', reconstructed_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # plt.figure(figsize=(8,8))
+    # plt.imshow(arr, cmap='gray')
+    # plt.title('All Wavelet Coeffs', fontsize=30)
+    # plt.show()
 
-    return reconstructed_image
+    original = img_gray
+
+    # Wavelet transform of image, and plot approximation and details
+    coeffs2 = pywt.wavedec2(original, 'haar', level = 15)
+    arr, coeff_slices = pywt.coeffs_to_array(coeffs2)
+
+    plt.imshow(arr)
+    plt.show()
 
 
 def wavelet_coefficients(img_gray):
@@ -112,7 +136,6 @@ def wavelet_coefficients(img_gray):
     w = 'haar' # mother wavelet type
 
     coeffs = pywt.wavedec2(img_gray, wavelet=w, level=n) # perform wavelet decompositionq
-
 
     # normalize each coefficient array
     coeffs[0] = coeffs[0]/np.abs(coeffs[0]).max() # normalize the lowpass component (approximation coefficients)
@@ -205,18 +228,16 @@ def main():
     image = import_image(folder_path, image_name)
     
     # Convert the image to grayscale
-    img_gray = gray_conversion(image, image_name)
+    # img_gray = gray_conversion(image, image_name)
 
     # Display the image information
-    image_info(img_gray)
+    #image_info(img_gray)
 
     # Normalise the image pixel density from 0 to 1 and display information
-    image_normalisation(img_gray)
+    #image_normalisation(img_gray)
 
     # Complete Discrete Wavlet Transform on the image
-    wavelet_function = 'db18' # wavelet function
-    n = 4 # level of decomposition
-    wavelet_decomposition(img_gray, wavelet_function, n)
+    dwt(image)
 
     # Perform wavelet decomposition - normalisation of coefficients
     #wavelet_coefficients(img_gray)
