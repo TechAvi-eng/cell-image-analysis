@@ -19,8 +19,8 @@ cv2.destroyAllWindows()
 imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
 imArrayG = np.uint8(imArrayG)
 
-n = 4
-wavelet = 'haar'
+n = 1
+wavelet = 'db7'
 
 coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
 

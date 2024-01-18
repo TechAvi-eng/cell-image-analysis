@@ -23,7 +23,7 @@ imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
 
 n = 4
 
-wavelet_list = ['haar', 'db1', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9', 'db10', 'db11', 'db12', 'db13', 'db14', 'db15', 'db16', 'db17', 'db18', 'db19', 'db20']
+wavelet_list = ['haar', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9', 'db10', 'db11', 'db12', 'db13', 'db14', 'db15', 'db16', 'db17', 'db18', 'db19', 'db20']
 psnr_list = []
 ssim_list = []
 
@@ -48,16 +48,18 @@ for i in wavelet_list:
     
 # Produce a graph of the PSNR against the wavelet used
 plt.plot(wavelet_list, psnr_list)
-plt.xlabel('Wavelet Type')
-plt.ylabel('PSNR')
-plt.title('PSNR of Approx Coefficients Images')
+plt.xlabel('Wavelet Function')
+plt.ylabel('Peak Signal-To-Noise Ratio (dB)')
+plt.title('Peak Signal-To-Noise Ratio (dB) against Wavelet Function')
+plt.rcParams["figure.figsize"] = (10,10)
 plt.show()
 
 # Produce a graph of the SSIM against the wavelet used
 plt.plot(wavelet_list, ssim_list)
-plt.xlabel('Wavelet Type')
-plt.ylabel('SSIM')
-plt.title('SSIM of Approx Coefficients Images')
+plt.xlabel('Wavelet Function')
+plt.ylabel('Structural Similarity (SSIM) Index')
+plt.title('Structural Similarity (SSIM) Index against Wavelet Function')
+plt.rcParams["figure.figsize"] = (10,10)
 plt.show()
 
 
