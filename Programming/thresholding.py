@@ -39,7 +39,7 @@ for keep in (0.5, 0.1, 0.05, 0.01, 0.005):
 
     Arecon = pywt.waverec2(coeffs_filt, wavelet)
     # title of image is the keep value
-    cv2.imshow(str(keep), Arecon)    
+    cv2.imshow('Threshold ' + str(keep), Arecon)    
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
