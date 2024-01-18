@@ -61,4 +61,3 @@ plt.title('SSIM of Approx Coefficients Images')
 plt.show()
 
 
-
