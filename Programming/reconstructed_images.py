@@ -22,7 +22,7 @@ cv2.destroyAllWindows()
 imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
 
 n = 4
-wavelet = 'db7'
+wavelet = 'db17'
 
 coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
 
@@ -35,6 +35,8 @@ reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
 reconstructed_image_A = np.uint8(reconstructed_image_A)
 
 cv2.imshow('Approx Coefficients Reconstructed Image', reconstructed_image_A)
+output_path = 'Programming/images/' + image_name + '_prepared.png'
+cv2.imwrite(output_path, reconstructed_image_A)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 

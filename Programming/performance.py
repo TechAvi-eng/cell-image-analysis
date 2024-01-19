@@ -47,19 +47,20 @@ for i in wavelet_list:
     ssim_list.append(ssim_A)
     
 # Produce a graph of the PSNR against the wavelet used
+plt.figure(figsize=(10,7))
 plt.plot(wavelet_list, psnr_list)
 plt.xlabel('Wavelet Function')
 plt.ylabel('Peak Signal-To-Noise Ratio (dB)')
 plt.title('Peak Signal-To-Noise Ratio (dB) against Wavelet Function')
-plt.rcParams["figure.figsize"] = (10,10)
 plt.show()
 
 # Produce a graph of the SSIM against the wavelet used
+plt.figure(figsize=(10,7))
 plt.plot(wavelet_list, ssim_list)
 plt.xlabel('Wavelet Function')
 plt.ylabel('Structural Similarity (SSIM) Index')
 plt.title('Structural Similarity (SSIM) Index against Wavelet Function')
-plt.rcParams["figure.figsize"] = (10,10)
 plt.show()
+
 
 

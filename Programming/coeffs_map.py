@@ -20,7 +20,7 @@ imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
 imArrayG = np.uint8(imArrayG)
 
 n = 1
-wavelet = 'db7'
+wavelet = 'db17'
 
 coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
 
@@ -31,3 +31,4 @@ arr, coeff_slices = pywt.coeffs_to_array(coeffs)
 cv2.imshow('Image', arr)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
