@@ -131,13 +131,16 @@ def denoising(imArrayG, n, wavelet_function):
     print('PSNR of Visushrink: ', psnr_visushrink)
 
 
-def reconstrucuted_images(coeffs, n, wavelet):
+def reconstrucuted_images(coeffs, n, wavelet, image_name):
     """
     Reconstruct images using only approximation and detail coefficients
     Parameters:
         imArrayG (array): grayscale 8-bit image array
         n (int): number of levels
         wavelet (str): wavelet type
+        image_name (str): image name
+    Returns:
+        reconstructed_image_A (array): reconstructed image using only approximation coefficients
     """
     # SETTING DETAIL COEFFICIENTS TO ZERO
     coeffs_A = list(coeffs)
@@ -149,6 +152,9 @@ def reconstrucuted_images(coeffs, n, wavelet):
 
     display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
+    output_path = 'Programming/images/' + image_name + '_prepared.png'
+    cv2.imwrite(output_path, reconstructed_image_A)
+
     # SETTING APPROXIMATION COEFFICIENTS TO ZERO
     coeffs_D = list(coeffs)
     for i in range(0, 1):
@@ -159,6 +165,8 @@ def reconstrucuted_images(coeffs, n, wavelet):
 
     display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D.astype(np.uint8))
 
+    return reconstructed_image_A
+
 
 def performance(imArrayG):
     """
@@ -166,47 +174,74 @@ def performance(imArrayG):
     Parameters:
         imArrayG (array): grayscale 8-bit image array
     """
-    n = 4
-    wavelet_list = ['haar', 'db2', 'db3', 'db4', 'db5', 'db6', 'db7', 'db8', 'db9', 'db10', 'db11', 'db12',
-                     'db13', 'db14', 'db15', 'db16', 'db17', 'db18', 'db19', 'db20']
-    psnr_list = []
-    ssim_list = []
 
-    for i in wavelet_list:
-        wavelet = i
+    wavelet_list = pywt.wavelist(kind='discrete')
+    
+    # Create empty lists to store PSNR and SSIM values, with columns representing the wavelet function used and rows representing the number of levels used
+    psnr_list = np.zeros((len(wavelet_list), 3))
+    ssim_list = np.zeros((len(wavelet_list), 3))
 
-        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
+    psnr_highest_name = ''
+    ssim_highest_name = ''
 
-        coeffs_A = list(coeffs)
+    psnr_highest = 0
+    ssim_highest = 0
 
-        for i in range(1, n+1):
-            coeffs_A[i] = tuple(np.zeros_like(element) for element in coeffs[i])
+    for n in range(3, 6):
+        for i in wavelet_list:
+            wavelet = i
 
-        reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
-        reconstructed_image_A = np.uint8(reconstructed_image_A)
+            coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
 
-        psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A)
-        ssim_A = structural_similarity(imArrayG, reconstructed_image_A)
+            coeffs_A = list(coeffs)
 
-        psnr_list.append(psnr_A)
-        ssim_list.append(ssim_A)
-        
+            for i in range(1, n+1):
+                coeffs_A[i] = tuple(np.zeros_like(element) for element in coeffs[i])
+
+            reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
+            reconstructed_image_A = np.uint8(reconstructed_image_A)
+
+            psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A)
+            ssim_A = structural_similarity(imArrayG, reconstructed_image_A)
+
+            if psnr_A > psnr_highest:
+                psnr_highest = psnr_A
+                psnr_highest_name = wavelet + ' at ' + str(n) + ' levels'
+            
+            if ssim_A > ssim_highest:
+                ssim_highest = ssim_A
+                ssim_highest_name = wavelet + ' at ' + str(n) + ' levels'
+
+            # Store PSNR and SSIM values in the list at column = wavelet and row = n
+            psnr_list[wavelet_list.index(wavelet)][n-3] = psnr_A
+            ssim_list[wavelet_list.index(wavelet)][n-3] = ssim_A
+            
+            print("Completed " + str(wavelet) + " at " + str(n) + " levels")
+
+    # Output the wavelet function gives the highest PSNR and SSIM
+    print("Highest PSNR: " + psnr_highest_name + " with PSNR of " + str(psnr_highest))
+    print("Highest SSIM: " + ssim_highest_name + " with SSIM of " + str(ssim_highest))
+
     # Produce a graph of the PSNR against the wavelet used
     plt.figure(figsize=(10,7))
     plt.plot(wavelet_list, psnr_list)
+    plt.xticks(rotation=90)
     plt.xlabel('Wavelet Function')
     plt.ylabel('Peak Signal-To-Noise Ratio (dB)')
     plt.title('Peak Signal-To-Noise Ratio (dB) against Wavelet Function')
+    plt.legend(['3 levels', '4 levels', '5 levels'])
     plt.show()
 
     # Produce a graph of the SSIM against the wavelet used
     plt.figure(figsize=(10,7))
     plt.plot(wavelet_list, ssim_list)
+    plt.xticks(rotation=90)
     plt.xlabel('Wavelet Function')
     plt.ylabel('Structural Similarity (SSIM) Index')
     plt.title('Structural Similarity (SSIM) Index against Wavelet Function')
+    plt.legend(['3 levels', '4 levels', '5 levels'])
     plt.show()
-
+    
 
 def main():
     folder_path = 'Programming/images'
@@ -219,7 +254,7 @@ def main():
     imArrayG = gray_conversion(imArray)
 
     n = 4
-    wavelet = 'db17'
+    wavelet = 'coif12'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
@@ -236,11 +271,13 @@ def main():
     """
 
     # Reconstruct images with only approximation and detail coefficients
-    reconstrucuted_images(coeffs, n, wavelet)
+    prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
 
+    """
     # Evaluate the performance before and after DWT applied
     performance(imArrayG)
-
+    """
+    
 if __name__ == "__main__":
     main()
 
