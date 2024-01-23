@@ -37,8 +37,10 @@ def image_info(image_name, imArray):
     plt.hist(imArray.flatten(), bins=100) #, range=(0, 255)
     plt.xlabel('Pixel intensity')
     plt.ylabel('Number of pixels')
+    plt.tight_layout()
+    plt.savefig('Programming/images/' + image_name + '_histogram.png')
     plt.show()
-
+    
 
 def image_import(folder_path, image_name):
     """
@@ -52,17 +54,23 @@ def image_import(folder_path, image_name):
 
     image_path = os.path.join(folder_path, image_name) + '.png' # image path 
     imArray = cv2.imread(image_path)
+    
+    print(f'Bit depth: {imArray.dtype}')
 
     display_image('Original Image', imArray)
+
+    #image_info('Original_Image', imArray)
+
 
     return imArray
 
 
-def gray_conversion(imArray):
+def gray_conversion(imArray, image_name):
     """
     Convert image to grayscale and convert to 8-bit integer
     Parameters:
         imArray (array): image array
+        image_name (str): image name
     Returns:
         imArrayG (array): grayscale 8-bit image array
     """
@@ -72,7 +80,10 @@ def gray_conversion(imArray):
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
-    #image_info('Gray 8-bit Integer Image', imArrayG)
+    #image_info('Gray_8_bit_Image', imArrayG)
+
+    output_path = 'Programming/images/' + image_name + '_gray.png'
+    cv2.imwrite(output_path, imArrayG)
 
     return imArrayG
 
@@ -102,7 +113,7 @@ def coeffs_map(coeffs):
 
     arr, coeff_slices = pywt.coeffs_to_array(coeffs)
 
-    display_image('Coefficients Map', arr)
+    display_image('Coefficients Map', arr)    
 
 
 def thresholding(coeffs, wavelet):
@@ -174,7 +185,7 @@ def reconstrucuted_images(coeffs, n, wavelet, image_name):
 
     display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
-    image_info('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
+    image_info('Approx_Coefficients_Image', reconstructed_image_A)
     
     output_path = 'Programming/images/' + image_name + '_prepared.png'
     cv2.imwrite(output_path, reconstructed_image_A)
@@ -275,27 +286,28 @@ def main():
     imArray = image_import(folder_path, image_name)
 
     # Convert image to grayscale and convert to 8-bit integer
-    imArrayG = gray_conversion(imArray)
+    imArrayG = gray_conversion(imArray, image_name)
 
-    n = 4
-    wavelet = 'coif12'
+    n = 1
+    wavelet = 'coif17'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
 
-    """
+    
     # Produce coefficient map
-    coeffs_map(coeffs)
+    #coeffs_map(coeffs)
+    
     
     # Thresholding retaining only set% of coefficients
     thresholding(coeffs, wavelet)
 
     # Denoising using BayesShrink and VisuShrink
-    denoising(imArrayG, n, wavelet)
-    """
+    # denoising(imArrayG, n, wavelet)
+    
 
     # Reconstruct images with only approximation and detail coefficients
-    prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
+    #prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
 
     """
     # Evaluate the performance before and after DWT applied
