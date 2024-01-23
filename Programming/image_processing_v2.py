@@ -185,7 +185,7 @@ def reconstrucuted_images(coeffs, n, wavelet, image_name):
 
     display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
-    image_info('Approx_Coefficients_Image', reconstructed_image_A)
+    #image_info('Approx_Coefficients_Image', reconstructed_image_A)
     
     output_path = 'Programming/images/' + image_name + '_prepared.png'
     cv2.imwrite(output_path, reconstructed_image_A)
@@ -288,26 +288,26 @@ def main():
     # Convert image to grayscale and convert to 8-bit integer
     imArrayG = gray_conversion(imArray, image_name)
 
-    n = 1
+    n = 4
     wavelet = 'coif17'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
 
-    
+    """
     # Produce coefficient map
-    #coeffs_map(coeffs)
+    coeffs_map(coeffs)
     
     
     # Thresholding retaining only set% of coefficients
     thresholding(coeffs, wavelet)
 
     # Denoising using BayesShrink and VisuShrink
-    # denoising(imArrayG, n, wavelet)
-    
+    denoising(imArrayG, n, wavelet)
+    """
 
     # Reconstruct images with only approximation and detail coefficients
-    #prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
+    prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
 
     """
     # Evaluate the performance before and after DWT applied
