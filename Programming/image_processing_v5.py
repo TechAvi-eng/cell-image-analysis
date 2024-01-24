@@ -35,19 +35,12 @@ morphed = cv2.dilate(morphed,kernel,iterations = 1)
 morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel) 
 
 # Contour detection
-contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL retrieves only the extreme outer contours, cv2.CHAIN_APPROX_SIMPLE compresses the contour
 
-
-
-
-# Draw contours on original image and number them
+# Draw contours on original image
 result = img.copy()
 
-for i in range(len(contours)):
-    cv2.drawContours(result, contours, i, (0, 255, 0), 2)
-    cv2.putText(result, str(i), tuple(contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
-
-#cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
+cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
 
 # Display the results
 cv2.imshow('Result', result)
@@ -57,7 +50,7 @@ cv2.destroyAllWindows()
 
 
 # Minimum contour area threshold
-min_contour_area = 4725  # Adjust this value based on your requirements
+min_contour_area = 6000  # Adjust this value based on your requirements
 
 # Filter contours based on area
 filtered_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_contour_area]
@@ -65,23 +58,35 @@ filtered_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_conto
 # Draw contours on original image
 result = img.copy()
 
+original_image_name = '1_00001_gray'
+original_image_path = os.path.join(folder_path, original_image_name) + '.png'
+result_2 = cv2.imread(original_image_path)
+
+# Draw contours and number them
 for i in range(len(filtered_contours)):
-    cv2.drawContours(result, filtered_contours, i, (0, 255, 0), 2)
-    cv2.putText(result, str(i), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+    cv2.drawContours(result_2, filtered_contours, i, (0, 255, 0), 2)
+    cv2.putText(result_2, str(i), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 2)
+    # Output the contours area
+    print('Contour ' + str(i) + ' area = ' + str(cv2.contourArea(filtered_contours[i])))
 
 print('Number of Cells Found: ' + str(len(filtered_contours)))
 
 # Display the results
-cv2.imshow('Result', result)
+cv2.imshow('Result', result_2)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 
-for i in filtered_contours:
-    epsilon = 0.1*cv2.arcLength(i,True)
-    approx = cv2.approxPolyDP(i,epsilon,True)
-    cv2.drawContours(result, approx, i, (0, 255, 0), 2)
+# Now I want to obtain characteristics of each contour including area, perimeter, average intensity, etc.
+#for i in range(len(filtered_contours)):
 
-cv2.imshow('Result', result)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+# result_2 = img.copy()
+# for i in filtered_contours:
+#     epsilon = 0.1*cv2.arcLength(i,True)
+#     approx = cv2.approxPolyDP(i,epsilon,True)
+#     cv2.drawContours(result_2, approx, i, (0, 255, 0), 2)
+
+# cv2.imshow('Result', result_2)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
