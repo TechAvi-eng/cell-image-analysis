@@ -116,7 +116,7 @@ def coeffs_map(coeffs):
     display_image('Coefficients Map', arr)    
 
 
-def thresholding(coeffs, wavelet):
+def compression_thresholding(coeffs, wavelet):
     """
     Thresholding retaining only set% of coefficients and reconstruct image
     Parameters:
@@ -203,7 +203,7 @@ def reconstrucuted_images(coeffs, n, wavelet, image_name):
     return reconstructed_image_A
 
 
-def performance(imArrayG):
+def DWT_performance(imArrayG):
     """
     Evaluate the performance before and after DWT applied, using PSNR and SSIM performance metrics
     Parameters:
@@ -278,6 +278,72 @@ def performance(imArrayG):
     plt.show()
     
 
+def binary_thresholding(prepared_image):
+    """
+    Binary thresholding using simple thresholding method
+    Parameters:
+        prepared_image (array): image array
+    Returns:
+        thresh (array): thresholded image array
+    """
+    _, thresh = cv2.threshold(prepared_image, 103, 255, cv2.THRESH_BINARY_INV) # Pixel value > 103 set to 255, then inverted as cv2.findContours() requires white objects on black background
+
+    # Display thresholded image
+    display_image('Binary Thresholded Image', thresh)
+
+    return thresh
+
+
+def cell_identification(binary_image, imArrayG):
+
+    # Morphological operations
+    kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
+    kernel_dilation = np.ones((16, 16), np.uint8)
+    kernel_close = np.ones((25, 25), np.uint8)
+
+    morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
+    morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
+    morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
+
+    # Contour detection
+    contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL retrieves only the extreme outer contours, cv2.CHAIN_APPROX_SIMPLE compresses the contour
+
+    # Draw contours on original grayscale image
+    result = imArrayG.copy()
+    result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR) # ***Only to display contour in colour
+
+    cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
+    display_image('Contours on Grayscale Image', result)
+
+
+    # Minimum contour area threshold - removes small contours
+    min_contour_area = 3000
+
+    # Filter contours based on area
+    filtered_contours = []
+    for contour in contours:
+        if cv2.contourArea(contour) > min_contour_area:
+            filtered_contours.append(contour)
+
+    # Draw contours on original grayscale image
+    result_filtered = imArrayG.copy()
+    result_filtered = cv2.cvtColor(result_filtered, cv2.COLOR_GRAY2BGR) # ***Only to display contour and label text in colour
+
+    # Draw contours and number them
+    for i in range(len(filtered_contours)):
+        cv2.drawContours(result_filtered, filtered_contours, i, (0, 255, 0), 2)
+        cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)    
+
+        # Output the contours area
+        # print('Contour ' + str(i+1) + ' area = ' + str(cv2.contourArea(filtered_contours[i])))
+
+    print('Number of Cells Found: ' + str(len(filtered_contours)))
+
+    display_image('Filtered Contours on Grayscale Image', result_filtered)
+
+    return result_filtered, filtered_contours
+
+
 def main():
     folder_path = 'Programming/images'
     image_name = '1_00001'
@@ -300,7 +366,7 @@ def main():
     
     
     # Thresholding retaining only set% of coefficients
-    thresholding(coeffs, wavelet)
+    compression_thresholding(coeffs, wavelet)
 
     # Denoising using BayesShrink and VisuShrink
     denoising(imArrayG, n, wavelet)
@@ -311,8 +377,15 @@ def main():
 
     """
     # Evaluate the performance before and after DWT applied
-    performance(imArrayG)
+    DWT_performance(imArrayG)
     """
+
+    # Binary thresholding
+    binary_image = binary_thresholding(prepared_image)
+
+    # Morphological operations and contour detection (cell identification)
+    result_filtered, filtered_contours = cell_identification(binary_image, imArrayG)
+    
     
 if __name__ == "__main__":
     main()
