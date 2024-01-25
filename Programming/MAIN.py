@@ -144,6 +144,7 @@ def compression_thresholding(coeffs, wavelet):
 def denoising(imArrayG, n, wavelet_function):
     """
     Denoising using BayesShrink and VisuShrink, and display SNR and PSNR after each method
+    Works similarly to compression_thresholding() but with different thresholding method
     Parameters:
         imArrayG (array): grayscale 8-bit image array
         n (int): number of levels
