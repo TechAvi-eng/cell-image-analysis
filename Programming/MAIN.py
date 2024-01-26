@@ -353,7 +353,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 def main():
     folder_path = 'Programming/images'
-    image_name = '1_00001'
+    image_name = '4_00052'
 
     # Import image
     imArray = image_import(folder_path, image_name)
