@@ -287,12 +287,36 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    _, thresh = cv2.threshold(prepared_image, 103, 255, cv2.THRESH_BINARY_INV) # Pixel value > 103 set to 255, then inverted as cv2.findContours() requires white objects on black background
+    threshold = prepared_image.mean() - 1/2 * prepared_image.std() # threshold value
+    _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV) # Pixel value > 103 set to 255, then inverted as cv2.findContours() requires white objects on black background
 
     # Display thresholded image
     display_image('Binary Thresholded Image', thresh)
 
     return thresh
+
+
+def otsu_thresholding(prepared_image):
+    """
+    Otsu's thresholding
+    Parameters:
+        prepared_image (array): image array
+    Returns:
+        otsu (array): thresholded image array
+    """
+    # Output the mean and standard deviation of the image
+    print('Mean: ' + str(prepared_image.mean()))
+    print('Standard Deviation: ' + str(prepared_image.std()))
+
+    threshold, otsu = cv2.threshold(prepared_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    # Output the threshold value
+    print('Otsu Threshold Value: ' + str(threshold))
+
+    # Display thresholded image
+    display_image('Otsu Thresholded Image', otsu)
+
+    return otsu
 
 
 def cell_identification(binary_image, imArrayG, image_name):
@@ -351,6 +375,8 @@ def cell_identification(binary_image, imArrayG, image_name):
     return result_filtered, filtered_contours
 
 
+
+
 def main():
     folder_path = 'Programming/raw_images/'
     image_name = '1_00001'
@@ -388,10 +414,13 @@ def main():
     """
 
     # Binary thresholding
-    binary_image = binary_thresholding(prepared_image)
+    binary_image_simple = binary_thresholding(prepared_image)
+
+    # Otsu's thresholding
+    binary_image_otsu = otsu_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
-    result_filtered, filtered_contours = cell_identification(binary_image, imArrayG, image_name)
+    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG, image_name)
     
     
 if __name__ == "__main__":
