@@ -38,7 +38,7 @@ def image_info(image_name, imArray):
     plt.xlabel('Pixel intensity')
     plt.ylabel('Number of pixels')
     plt.tight_layout()
-    plt.savefig('Programming/images/' + image_name + '_histogram.png')
+    plt.savefig('Programming/edited_images' + image_name + '_histogram.png')
     plt.show()
     
 
@@ -82,7 +82,7 @@ def gray_conversion(imArray, image_name):
     
     #image_info('Gray_8_bit_Image', imArrayG)
 
-    output_path = 'Programming/images/' + image_name + '_gray.png'
+    output_path = 'Programming/edited_images/' + image_name + '_gray.png'
     cv2.imwrite(output_path, imArrayG)
 
     return imArrayG
@@ -188,7 +188,7 @@ def reconstrucuted_images(coeffs, n, wavelet, image_name):
 
     #image_info('Approx_Coefficients_Image', reconstructed_image_A)
     
-    output_path = 'Programming/images/' + image_name + '_prepared.png'
+    output_path = 'Programming/edited_images/' + image_name + '_prepared.png'
     cv2.imwrite(output_path, reconstructed_image_A)
 
     # SETTING APPROXIMATION COEFFICIENTS TO ZERO
@@ -316,7 +316,7 @@ def cell_identification(binary_image, imArrayG, image_name):
     result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR) # ***Only to display contour in colour
 
     cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
-    display_image('Contours on Grayscale Image', result)
+    #display_image('Contours on Grayscale Image', result)
 
 
     # Minimum contour area threshold - removes small contours
@@ -345,14 +345,14 @@ def cell_identification(binary_image, imArrayG, image_name):
     display_image('Filtered Contours on Grayscale Image', result_filtered)
 
     # Save image
-    output_path = 'Programming/images/' + image_name + '_contours.png'
+    output_path = 'Programming/edited_images/' + image_name + '_contours.png'
     cv2.imwrite(output_path, result_filtered)
 
     return result_filtered, filtered_contours
 
 
 def main():
-    folder_path = 'Programming/images'
+    folder_path = 'Programming/raw_images/'
     image_name = '1_00001'
 
     # Import image
@@ -362,7 +362,7 @@ def main():
     imArrayG = gray_conversion(imArray, image_name)
 
     n = 4
-    wavelet = 'coif17'
+    wavelet = 'coif12'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
@@ -379,7 +379,7 @@ def main():
     denoising(imArrayG, n, wavelet)
     """
 
-    # Reconstruct images with only approximation and detail coefficients
+    # Reconstruct images with only approximation and detail coefficients respectively
     prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
 
     """
