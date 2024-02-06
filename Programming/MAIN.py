@@ -288,7 +288,7 @@ def binary_thresholding(prepared_image):
         thresh (array): thresholded image array
     """
     threshold = prepared_image.mean() - 1/2 * prepared_image.std() # threshold value
-    _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV) # Pixel value > 103 set to 255, then inverted as cv2.findContours() requires white objects on black background
+    _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV) # Pixel value > threshold set to 255, then inverted as cv2.findContours() requires white objects on black background
 
     # Display thresholded image
     display_image('Binary Thresholded Image', thresh)
@@ -320,7 +320,6 @@ def otsu_thresholding(prepared_image):
 
 
 def cell_identification(binary_image, imArrayG, image_name):
-
     # Morphological operations
     kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
     kernel_dilation = np.ones((16, 16), np.uint8)
@@ -330,6 +329,7 @@ def cell_identification(binary_image, imArrayG, image_name):
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
+    #morphed = binary_image
     display_image('Morphed Image', morphed)
     
     # Contour detection
@@ -376,7 +376,6 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 
 
-
 def main():
     folder_path = 'Programming/raw_images/'
     image_name = '1_00001'
@@ -388,7 +387,7 @@ def main():
     imArrayG = gray_conversion(imArray, image_name)
 
     n = 4
-    wavelet = 'coif12'
+    wavelet = 'coif17'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
@@ -417,11 +416,11 @@ def main():
     binary_image_simple = binary_thresholding(prepared_image)
 
     # Otsu's thresholding
-    binary_image_otsu = otsu_thresholding(prepared_image)
+    # binary_image_otsu = otsu_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
     result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG, image_name)
-    
+    #result_filtered, filtered_contours = cell_identification(binary_image_otsu, imArrayG, image_name)
     
 if __name__ == "__main__":
     main()
