@@ -287,7 +287,7 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    threshold = prepared_image.mean() - 1/2 * prepared_image.std() # threshold value
+    threshold = prepared_image.mean() - 1/2 * prepared_image.std() -2 # threshold value
     _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV) # Pixel value > threshold set to 255, then inverted as cv2.findContours() requires white objects on black background
 
     # Display thresholded image
@@ -329,7 +329,7 @@ def cell_identification(binary_image, imArrayG, image_name):
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
-    #morphed = binary_image
+    # morphed = binary_image
     display_image('Morphed Image', morphed)
     
     # Contour detection
