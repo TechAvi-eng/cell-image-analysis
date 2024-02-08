@@ -287,8 +287,10 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    threshold = prepared_image.mean() - 1/2 * prepared_image.std() -2 # threshold value
+    threshold = prepared_image.mean() - 1/2 * prepared_image.std() - 2 # threshold value
     _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV) # Pixel value > threshold set to 255, then inverted as cv2.findContours() requires white objects on black background
+
+    print('Simple Threshold Value: ' + str(threshold))
 
     # Display thresholded image
     display_image('Binary Thresholded Image', thresh)
@@ -344,7 +346,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 3000
+    min_contour_area = 4500
 
     # Filter contours based on area
     filtered_contours = []
@@ -413,13 +415,13 @@ def main():
     """
 
     # Binary thresholding
-    binary_image_simple = binary_thresholding(prepared_image)
+    # binary_image_simple = binary_thresholding(prepared_image)
 
     # Otsu's thresholding
-    # binary_image_otsu = otsu_thresholding(prepared_image)
+    binary_image_otsu = otsu_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
-    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG, image_name)
+    result_filtered, filtered_contours = cell_identification(binary_image_otsu, imArrayG, image_name)
     #result_filtered, filtered_contours = cell_identification(binary_image_otsu, imArrayG, image_name)
     
 if __name__ == "__main__":
