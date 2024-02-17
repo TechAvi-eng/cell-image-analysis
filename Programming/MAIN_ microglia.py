@@ -59,7 +59,7 @@ def image_import(folder_path, image_name):
 
     display_image('Original Image', imArray)
 
-    #image_info('Original_Image', imArray)
+    image_info('Original Image', imArray)
 
 
     return imArray
@@ -80,7 +80,7 @@ def gray_conversion(imArray, image_name):
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
-    #image_info('Gray_8_bit_Image', imArrayG)
+    image_info('Gray_8_bit_Image', imArrayG)
 
     output_path = 'Programming/edited_images/' + image_name + '_gray.png'
     cv2.imwrite(output_path, imArrayG)
@@ -225,14 +225,16 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    #threshold = prepared_image.mean() - 1/2 * prepared_image.std() - 2 # threshold value
-    threshold = 48
+    threshold = 1/2 * prepared_image.mean() + prepared_image.std() - 2 # threshold value
+    # threshold = 37
     _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY) # Pixel value > threshold set to 255, then inverted as cv2.findContours() requires white objects on black background
 
     print('Simple Threshold Value: ' + str(threshold))
 
     # Display thresholded image
     display_image('Binary Thresholded Image', thresh)
+
+    image_info('Binary_Thresholded_Image', thresh)
 
     return thresh
 
@@ -249,7 +251,7 @@ def otsu_thresholding(prepared_image):
     print('Mean: ' + str(prepared_image.mean()))
     print('Standard Deviation: ' + str(prepared_image.std()))
 
-    threshold, otsu = cv2.threshold(prepared_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    threshold, otsu = cv2.threshold(prepared_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     # Output the threshold value
     print('Otsu Threshold Value: ' + str(threshold))
@@ -262,15 +264,15 @@ def otsu_thresholding(prepared_image):
 
 def cell_identification(binary_image, imArrayG, image_name):
     # Morphological operations
-    # kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
-    # kernel_dilation = np.ones((16, 16), np.uint8)
-    # kernel_close = np.ones((25, 25), np.uint8)
+    kernel_open = np.ones((2, 2), np.uint8) # kernel with all ones
+    kernel_dilation = np.ones((2, 2), np.uint8)
+    kernel_close = np.ones((2, 2), np.uint8)
 
-    # morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
-    # morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
-    # morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
+    morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
+    morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
+    morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
-    morphed = binary_image
+    #morphed = binary_image
     display_image('Morphed Image', morphed)
     
     # Contour detection
@@ -281,11 +283,11 @@ def cell_identification(binary_image, imArrayG, image_name):
     result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR) # ***Only to display contour in colour
 
     cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
-    #display_image('Contours on Grayscale Image', result)
+    display_image('Contours on Grayscale Image', result)
 
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 00
+    min_contour_area = 50
 
     # Filter contours based on area
     filtered_contours = []
@@ -300,7 +302,7 @@ def cell_identification(binary_image, imArrayG, image_name):
     # Draw contours and number them
     for i in range(len(filtered_contours)):
         cv2.drawContours(result_filtered, filtered_contours, i, (0, 255, 0), 2)
-        #cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)    
+        #cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 1)    
 
         # Output the contours area
         # print('Contour ' + str(i+1) + ' area = ' + str(cv2.contourArea(filtered_contours[i])))
@@ -327,8 +329,8 @@ def main():
     # Convert image to grayscale and convert to 8-bit integer
     imArrayG = gray_conversion(imArray, image_name)
 
-    n = 4
-    wavelet = 'coif17'
+    n = 2
+    wavelet = 'haar'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
@@ -346,7 +348,7 @@ def main():
 
 
     # Otsu's thresholding
-    # binary_image_otsu = otsu_thresholding(prepared_image)
+    #binary_image_otsu = otsu_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
     result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG, image_name)
