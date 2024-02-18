@@ -38,7 +38,7 @@ def image_info(image_name, imArray):
     plt.xlabel('Pixel intensity')
     plt.ylabel('Number of pixels')
     plt.tight_layout()
-    plt.savefig('Programming/edited_images' + image_name + '_histogram.png')
+    plt.savefig('Programming/histograms/' + image_name + '_histogram.png')
     plt.show()
     
 
@@ -225,7 +225,9 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    threshold = 1/2 * prepared_image.mean() + prepared_image.std() - 2 # threshold value
+    threshold = prepared_image.mean() + 1/2 * prepared_image.std() # threshold value
+    print('Mean: ' + str(prepared_image.mean()))
+    print('Standard Deviation: ' + str(prepared_image.std()))
     # threshold = 37
     _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY) # Pixel value > threshold set to 255, then inverted as cv2.findContours() requires white objects on black background
 
@@ -321,7 +323,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = 'fig10'
+    image_name = 'fig12b'
 
     # Import image
     imArray = image_import(folder_path, image_name)
