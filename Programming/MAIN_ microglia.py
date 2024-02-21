@@ -59,7 +59,7 @@ def image_import(folder_path, image_name):
 
     display_image('Original Image', imArray)
 
-    image_info('Original Image', imArray)
+    # image_info('Original Image', imArray)
 
 
     return imArray
@@ -80,13 +80,50 @@ def gray_conversion(imArray, image_name):
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
-    image_info('Gray_8_bit_Image', imArrayG)
+    # image_info('Gray_8_bit_Image', imArrayG)
 
     output_path = 'Programming/edited_images/' + image_name + '_gray.png'
     cv2.imwrite(output_path, imArrayG)
 
     return imArrayG
 
+
+def adjust_brightness_contrast(imArrayG):
+    """
+    Adjust brightness and contrast
+    Parameters:
+        imArrayG (array): grayscale 8-bit image array
+    Returns:
+        adjusted_image (array): grayscale 8-bit image array
+    """
+    # Find the maximum pixel intensity in the image
+    max_intensity = np.max(imArrayG)
+
+    # Define the target maximum intensity
+    # Determine the intensity with the most pixels
+    hist = cv2.calcHist([imArrayG], [0], None, [256], [0, 256])
+    peak_intensity = np.argmax(hist)
+    print('Peak Intensity: ' + str(peak_intensity))
+    std = imArrayG.std()
+    print('Standard Deviation: ' + str(std))
+    target_max_intensity = peak_intensity + 2 * std
+
+    # Calculate the ratio to adjust brightness and contrast
+    brightness_ratio = max_intensity / target_max_intensity
+    print('Brightness Ratio: ' + str(brightness_ratio))
+    contrast_ratio = 255 / max_intensity
+    print('Contrast Ratio: ' + str(contrast_ratio))
+
+    # Adjust brightness and contrast
+    adjusted_image = cv2.convertScaleAbs(imArrayG, alpha=brightness_ratio, beta=0)
+    adjusted_image = cv2.convertScaleAbs(adjusted_image, alpha=contrast_ratio, beta=0)
+
+    # Display the adjusted image
+    display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
+
+    image_info('Adjusted_Image', adjusted_image)
+
+    return adjusted_image
 
 def discrete_wavelet_transform(imArrayG, n, wavelet):
     """
@@ -124,7 +161,7 @@ def reconstrucuted_images(coeffs, n, wavelet, image_name):
 
     display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
-    image_info('Approx_Coefficients_Image', reconstructed_image_A)
+    # image_info('Approx_Coefficients_Image', reconstructed_image_A)
     
     output_path = 'Programming/edited_images/' + image_name + '_prepared.png'
     cv2.imwrite(output_path, reconstructed_image_A)
@@ -225,7 +262,7 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    threshold = prepared_image.mean() + 1/2 * prepared_image.std() # threshold value
+    threshold = prepared_image.mean() + 1 * prepared_image.std() # threshold value
     print('Mean: ' + str(prepared_image.mean()))
     print('Standard Deviation: ' + str(prepared_image.std()))
     # threshold = 37
@@ -236,7 +273,7 @@ def binary_thresholding(prepared_image):
     # Display thresholded image
     display_image('Binary Thresholded Image', thresh)
 
-    image_info('Binary_Thresholded_Image', thresh)
+    # image_info('Binary_Thresholded_Image', thresh)
 
     return thresh
 
@@ -267,14 +304,14 @@ def otsu_thresholding(prepared_image):
 def cell_identification(binary_image, imArrayG, image_name):
     # Morphological operations
     kernel_open = np.ones((2, 2), np.uint8) # kernel with all ones
-    kernel_dilation = np.ones((2, 2), np.uint8)
+    kernel_dilation = np.ones((5, 5), np.uint8)
     kernel_close = np.ones((2, 2), np.uint8)
 
     morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
-    #morphed = binary_image
+    morphed = binary_image
     display_image('Morphed Image', morphed)
     
     # Contour detection
@@ -289,7 +326,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 50
+    min_contour_area = 500
 
     # Filter contours based on area
     filtered_contours = []
@@ -323,7 +360,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = 'fig12b'
+    image_name = 'fig10'
 
     # Import image
     imArray = image_import(folder_path, image_name)
@@ -331,11 +368,14 @@ def main():
     # Convert image to grayscale and convert to 8-bit integer
     imArrayG = gray_conversion(imArray, image_name)
 
+    # Adjust brightness and contrast
+    adjusted_image = adjust_brightness_contrast(imArrayG)
+
     n = 2
     wavelet = 'haar'
     
     # Complete DWT
-    coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
+    coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)
 
     # Reconstruct images with only approximation and detail coefficients respectively
     prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
