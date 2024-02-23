@@ -76,10 +76,10 @@ def discrete_wavelet_transform(gray_folder_path):
         
         coeffs = pywt.dwt(imArrayG, wavelet)
         Approx = coeffs[0]
-        
+
         # Make the Approximation matrix a single row
         Approx = Approx.flatten()
-        
+        print(Approx.shape)
         # Append the Approximation matrix to the data list
         cell_data.append(Approx)
 

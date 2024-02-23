@@ -80,7 +80,7 @@ def gray_conversion(imArray, image_name):
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
-    # image_info('Gray_8_bit_Image', imArrayG)
+    image_info('Gray_8_bit_Image', imArrayG)
 
     output_path = 'Programming/edited_images/' + image_name + '_gray.png'
     cv2.imwrite(output_path, imArrayG)
@@ -124,6 +124,7 @@ def adjust_brightness_contrast(imArrayG):
     image_info('Adjusted_Image', adjusted_image)
 
     return adjusted_image
+
 
 def discrete_wavelet_transform(imArrayG, n, wavelet):
     """
@@ -177,81 +178,6 @@ def reconstrucuted_images(coeffs, n, wavelet, image_name):
     display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D)
 
     return reconstructed_image_A
-
-
-def DWT_performance(imArrayG):
-    """
-    Evaluate the performance before and after DWT applied, using PSNR and SSIM performance metrics
-    Parameters:
-        imArrayG (array): grayscale 8-bit image array
-    """
-
-    wavelet_list = pywt.wavelist(kind='discrete')
-    
-    # Create empty lists to store PSNR and SSIM values, with columns representing the wavelet function used and rows representing the number of levels used
-    psnr_list = np.zeros((len(wavelet_list), 3))
-    ssim_list = np.zeros((len(wavelet_list), 3))
-
-    psnr_highest_name = ''
-    ssim_highest_name = ''
-
-    psnr_highest = 0
-    ssim_highest = 0
-
-    for n in range(3, 6):
-        for i in wavelet_list:
-            wavelet = i
-
-            coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
-
-            coeffs_A = list(coeffs)
-
-            for i in range(1, n+1):
-                coeffs_A[i] = tuple(np.zeros_like(element) for element in coeffs[i])
-
-            reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
-            reconstructed_image_A = np.uint8(reconstructed_image_A)
-
-            psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A)
-            ssim_A = structural_similarity(imArrayG, reconstructed_image_A)
-
-            if psnr_A > psnr_highest:
-                psnr_highest = psnr_A
-                psnr_highest_name = wavelet + ' at ' + str(n) + ' levels'
-            
-            if ssim_A > ssim_highest:
-                ssim_highest = ssim_A
-                ssim_highest_name = wavelet + ' at ' + str(n) + ' levels'
-
-            # Store PSNR and SSIM values in the list at column = wavelet and row = n
-            psnr_list[wavelet_list.index(wavelet)][n-3] = psnr_A
-            ssim_list[wavelet_list.index(wavelet)][n-3] = ssim_A
-            
-            print("Completed " + str(wavelet) + " at " + str(n) + " levels")
-
-    # Output the wavelet function gives the highest PSNR and SSIM
-    print("Highest PSNR: " + psnr_highest_name + " with PSNR of " + str(psnr_highest))
-    print("Highest SSIM: " + ssim_highest_name + " with SSIM of " + str(ssim_highest))
-
-    # Produce a graph of the PSNR against the wavelet used
-    plt.figure(figsize=(10,7))
-    plt.plot(wavelet_list, psnr_list)
-    plt.xticks(rotation=90)
-    plt.xlabel('Wavelet Function')
-    plt.ylabel('Peak Signal-To-Noise Ratio (dB)')
-    plt.title('Peak Signal-To-Noise Ratio (dB) against Wavelet Function')
-    plt.legend(['3 levels', '4 levels', '5 levels'])
-    plt.show()
-
-    # Produce a graph of the SSIM against the wavelet used
-    plt.figure(figsize=(10,7))
-    plt.plot(wavelet_list, ssim_list)
-    plt.xticks(rotation=90)
-    plt.xlabel('Wavelet Function')
-    plt.ylabel('Structural Similarity (SSIM) Index')
-    plt.title('Structural Similarity (SSIM) Index against Wavelet Function')
-    plt.legend(['3 levels', '4 levels', '5 levels'])
-    plt.show()
     
 
 def binary_thresholding(prepared_image):
@@ -276,29 +202,6 @@ def binary_thresholding(prepared_image):
     # image_info('Binary_Thresholded_Image', thresh)
 
     return thresh
-
-
-def otsu_thresholding(prepared_image):
-    """
-    Otsu's thresholding
-    Parameters:
-        prepared_image (array): image array
-    Returns:
-        otsu (array): thresholded image array
-    """
-    # Output the mean and standard deviation of the image
-    print('Mean: ' + str(prepared_image.mean()))
-    print('Standard Deviation: ' + str(prepared_image.std()))
-
-    threshold, otsu = cv2.threshold(prepared_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # Output the threshold value
-    print('Otsu Threshold Value: ' + str(threshold))
-
-    # Display thresholded image
-    display_image('Otsu Thresholded Image', otsu)
-
-    return otsu
 
 
 def cell_identification(binary_image, imArrayG, image_name):
@@ -360,7 +263,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = 'fig10'
+    image_name = 'fig12b'
 
     # Import image
     imArray = image_import(folder_path, image_name)
@@ -380,21 +283,11 @@ def main():
     # Reconstruct images with only approximation and detail coefficients respectively
     prepared_image = reconstrucuted_images(coeffs, n, wavelet, image_name)
 
-    """
-    # Evaluate the performance before and after DWT applied
-    DWT_performance(imArrayG)
-    """
-
     # Binary thresholding
     binary_image_simple = binary_thresholding(prepared_image)
 
-
-    # Otsu's thresholding
-    #binary_image_otsu = otsu_thresholding(prepared_image)
-
     # Morphological operations and contour detection (cell identification)
     result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG, image_name)
-    #result_filtered, filtered_contours = cell_identification(binary_image_otsu, imArrayG, image_name)
     
 if __name__ == "__main__":
     main()
