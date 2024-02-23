@@ -9,7 +9,7 @@ from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
-
+from scipy.stats import skew, kurtosis
 
 def cell_image_import(folder_path):
     """
@@ -79,9 +79,18 @@ def discrete_wavelet_transform(gray_folder_path):
 
         # Make the Approximation matrix a single row
         Approx = Approx.flatten()
-        print(Approx.shape)
+
+        approx_mean = np.mean(Approx)
+        approx_std = np.std(Approx)
+        approx_var = np.var(Approx)
+        approx_skew = skew(Approx)
+        approx_kurt = kurtosis(Approx)
+
         # Append the Approximation matrix to the data list
-        cell_data.append(Approx)
+        #cell_data.append(Approx)
+
+        # Add the mean, std, var, skew and kurtosis to a new row in the data list
+        cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
 
         # Append the label to the labels list
         label = image[0]
@@ -165,7 +174,7 @@ def main():
     svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
-    kmeans_clustering(data_train, data_test, label_train, label_test)
+    #kmeans_clustering(data_train, data_test, label_train, label_test)
     
     
 
