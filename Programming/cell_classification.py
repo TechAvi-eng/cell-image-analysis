@@ -63,7 +63,7 @@ def discrete_wavelet_transform(gray_folder_path):
     Returns:
         coeffs (array): coefficients array from DWT
     """
-    wavelet = 'haar'
+    wavelet = 'db4'
     
     cell_data = []
     labels = []
@@ -79,18 +79,20 @@ def discrete_wavelet_transform(gray_folder_path):
 
         # Make the Approximation matrix a single row
         Approx = Approx.flatten()
+        print(Approx.shape)
 
         approx_mean = np.mean(Approx)
         approx_std = np.std(Approx)
-        approx_var = np.var(Approx)
-        approx_skew = skew(Approx)
-        approx_kurt = kurtosis(Approx)
+        # approx_var = np.var(Approx)
+        # approx_skew = skew(Approx)
+        # approx_kurt = kurtosis(Approx)
 
         # Append the Approximation matrix to the data list
         #cell_data.append(Approx)
 
         # Add the mean, std, var, skew and kurtosis to a new row in the data list
-        cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
+        # cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
+        cell_data.append([approx_mean, approx_std])
 
         # Append the label to the labels list
         label = image[0]
@@ -100,7 +102,7 @@ def discrete_wavelet_transform(gray_folder_path):
     print('SUCCESS: Completed DWT')
 
     cell_data = np.array(cell_data)
-    
+
     return cell_data, labels
 
 
@@ -117,7 +119,7 @@ def data_split(cell_data, labels):
 
 def svm_classifier(data_train, data_test, label_train, label_test):
     #Create a svm Classifier
-    clf = svm.SVC(kernel='linear') # Linear Kernel
+    clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
 
     print('SUCCESS: Created SVM Classifier')
 
