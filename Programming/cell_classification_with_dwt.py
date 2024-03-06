@@ -53,83 +53,59 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
     return
 
 
-def discrete_wavelet_transform(gray_folder_path, image_list):
-    """
-    Complete DWT
-    Parameters:
-        imArrayG (array): grayscale 8-bit image array
-        n (int): number of levels
-        wavelet (str): wavelet type
-    Returns:
-        coeffs (array): coefficients array from DWT
-    """
-    wavelet = 'db4'
-    n = 2
+def discrete_wavelet_transform(gray_folder_path):
+
+    wavelet = 'haar'
+    n = 1
 
     cell_data = []
-
     labels = []
 
-    
     print('STARTING DWT...')
     
     for image in os.listdir(gray_folder_path):
 
         image_path = gray_folder_path + '/' + image
         imArrayG = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        print('Image Read:', image)
+
+        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # Complete DWT
         
-        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
-        
+        # Approx Coefficient
         cA = coeffs[0]
         cA = cA.flatten()
 
-        mean = np.mean(cA)
-        new_row = float(mean)
-        std = np.std(cA)
-        new_row = new_row + float(std)
-        var = np.var(cA)
-        new_row = new_row + float(var)
-        skewness = skew(cA)
-        new_row = new_row + float(skewness)
-        kurt = kurtosis(cA)
-        new_row = new_row + float(kurt)
+        mean = float(np.mean(cA))
+        std = float(np.std(cA))
+        var = float(np.var(cA))
+        skewness = float(skew(cA))
+        kurt = float(kurtosis(cA))
 
-        # Add the data to a new row in the cell_data array 
-        # new_row = [mean, std, var, skewness, kurt]
+        # Add the data to a new row in the cell_data array
+        new_data = [mean, std, var, skewness, kurt]
 
-        # cD = coeffs[1:]
+        # Detail Coefficients (Loops through each level of decomposition)
         for level in range(1, n+1):
             cD = coeffs[level]
 
+            # Loops through each detail coefficient (ad, da, dd)
             for i in range(3):
                 details = cD[i].flatten()
 
-                mean = np.mean(details)
-                new_row = new_row + float(mean)
+                mean = float(np.mean(details))
+                std = float(np.std(details))
+                var = float(np.var(details))
+                skewness = float(skew(details))
+                kurt = float(kurtosis(details))
 
-                std = np.std(details)
-                new_row = new_row + float(std)
+                new_data = new_data + [mean, std, var, skewness, kurt]
 
-                var = np.var(details)
-                new_row = new_row + float(var)
-
-                skewness = skew(details)
-                new_row = new_row + float(skewness)
-                
-                kurt = kurtosis(details)
-                new_row = new_row + float(kurt)
-
-                # new_row = new_row + [mean, std, var, skewness, kurt]
-
-
-            # coeffs[level][0]
+        cell_data.append(new_data)
 
         # Append the label to the labels list
         label = image[0]
         label = int(label)
         labels.append(label)
-        
-        cell_data.append([new_row])
 
     print('SUCCESS: Completed DWT')
 
@@ -199,7 +175,7 @@ def main():
     gray_conversion(image_list, folder_path, gray_folder_path)
 
     # Complete DWT and return data and labels
-    cell_data, labels = discrete_wavelet_transform(gray_folder_path, image_list)
+    cell_data, labels = discrete_wavelet_transform(gray_folder_path)
 
     # Split data into training and test sets
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)

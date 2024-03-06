@@ -85,7 +85,6 @@ def discrete_wavelet_transform(gray_folder_path):
         approx_std = np.std(Approx)
         approx_var = np.var(Approx)
         approx_skew = skew(Approx)
-        print(type(approx_skew))
         approx_kurt = kurtosis(Approx)
 
         # Append the Approximation matrix to the data list
