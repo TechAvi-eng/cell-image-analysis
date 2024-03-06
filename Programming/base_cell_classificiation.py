@@ -54,7 +54,7 @@ def cell_image_import(folder_path):
 
 def data_split(cell_data, labels):
     # Split dataset into training set and test set
-    data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=109) # 70% training and 30% test
+    data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=0) # 70% training and 30% test
 
     print('SUCCESS: Split data into training and test sets')
     print('Training Data Size:', data_train.shape)

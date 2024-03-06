@@ -65,13 +65,14 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
     """
     wavelet = 'db4'
     n = 4
-    columns = n*3+1
-    cell_data = np.empty((len(image_list), columns))
+
+    cell_data = []
 
     labels = []
 
-    count = 0
+    
     print('STARTING DWT...')
+    
     for image in os.listdir(gray_folder_path):
 
         image_path = gray_folder_path + '/' + image
@@ -83,13 +84,18 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
         cA = cA.flatten()
 
         mean = np.mean(cA)
+        new_row = [mean]
         std = np.std(cA)
+        new_row = new_row + [std]
         var = np.var(cA)
+        new_row = new_row + [var]
         skewness = skew(cA)
+        new_row = new_row + [skewness]
         kurt = kurtosis(cA)
+        new_row = new_row + [kurt]
 
         # Add the data to a new row in the cell_data array 
-        cell_data[count] = [mean, std, var, skewness, kurt]
+        # new_row = [mean, std, var, skewness, kurt]
 
         cD = coeffs[1:]
         for level in range(1, n+1):
@@ -97,27 +103,32 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
 
             for i in range(3):
                 mean = np.mean(cD[i])
+                new_row = new_row + [mean]
                 std = np.std(cD[i])
+                new_row = new_row + [std]
                 var = np.var(cD[i])
+                new_row = new_row + [var]
                 skewness = skew(cD[i])
+                new_row = new_row + [skewness]
                 kurt = kurtosis(cD[i])
+                new_row = new_row + [kurt]
 
-                cell_data[count] = np.append(cell_data[count], [mean, std, var, skewness, kurt])
+                # new_row = new_row + [mean, std, var, skewness, kurt]
 
 
             # coeffs[level][0]
 
-            # Append the label to the labels list
-            label = image[0]
-            label = int(label)
-            labels.append(label)
-
-            count = count + 1
+        # Append the label to the labels list
+        label = image[0]
+        label = int(label)
+        labels.append(label)
         
+        cell_data.append(new_row)
 
     print('SUCCESS: Completed DWT')
 
-    print(cell_data.shape)
+    cell_data = np.array(cell_data, dtype=int)
+
     return cell_data, labels
 
 
@@ -126,8 +137,8 @@ def data_split(cell_data, labels):
     data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=109) # 70% training and 30% test
 
     print('SUCCESS: Split data into training and test sets')
-    print('Training Data Size:', data_train.shape)
-    print('Test Data Size:', data_test.shape)
+    # print('Training Data Size:', data_train.shape)
+    # print('Test Data Size:', data_test.shape)
 
     return data_train, data_test, label_train, label_test
 
@@ -185,10 +196,10 @@ def main():
     cell_data, labels = discrete_wavelet_transform(gray_folder_path, image_list)
 
     # Split data into training and test sets
-    # data_train, data_test, label_train, label_test = data_split(cell_data, labels)
+    data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
     # Create a svm Classifier
-    # svm_classifier(data_train, data_test, label_train, label_test)
+    svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
     #kmeans_clustering(data_train, data_test, label_train, label_test)
