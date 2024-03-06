@@ -54,46 +54,53 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
 
 
 def discrete_wavelet_transform(gray_folder_path):
-    """
-    Complete DWT
-    Parameters:
-        imArrayG (array): grayscale 8-bit image array
-        n (int): number of levels
-        wavelet (str): wavelet type
-    Returns:
-        coeffs (array): coefficients array from DWT
-    """
+
     wavelet = 'coif12'
-    
+    n = 2
+
     cell_data = []
     labels = []
 
     print('STARTING DWT...')
+    
     for image in os.listdir(gray_folder_path):
 
         image_path = gray_folder_path + '/' + image
         imArrayG = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        print('Image Read:', image)
+
+        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # Complete DWT
         
-        coeffs = pywt.dwt(imArrayG, wavelet)
-        Approx = coeffs[0]
+        # Approx Coefficient
+        cA = coeffs[0]
+        cA = cA.flatten()
 
-        # Make the Approximation matrix a single row
-        Approx = Approx.flatten()
-        print(Approx.shape)
+        mean = float(np.mean(cA))
+        std = float(np.std(cA))
+        var = float(np.var(cA))
+        skewness = float(skew(cA))
+        kurt = float(kurtosis(cA))
 
-        approx_mean = np.mean(Approx)
-        approx_std = np.std(Approx)
-        approx_var = np.var(Approx)
-        approx_skew = skew(Approx)
-        approx_kurt = kurtosis(Approx)
+        # Add the data to a new row in the cell_data array
+        new_data = [mean, std, var, skewness, kurt]
 
-        # Append the Approximation matrix to the data list
-        #cell_data.append(Approx)
+        # Detail Coefficients (Loops through each level of decomposition)
+        for level in range(1, n+1):
+            cD = coeffs[level]
 
-        # Add the mean, std, var, skew and kurtosis to a new row in the data list
-        cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
-        # new_data = [approx_mean, approx_std]
-        # cell_data.append(new_data)
+            # Loops through each detail coefficient (ad, da, dd)
+            for i in range(3):
+                details = cD[i].flatten()
+
+                mean = float(np.mean(details))
+                std = float(np.std(details))
+                var = float(np.var(details))
+                skewness = float(skew(details))
+                kurt = float(kurtosis(details))
+
+                new_data = new_data + [mean, std, var, skewness, kurt]
+
+        cell_data.append(new_data)
 
         # Append the label to the labels list
         label = image[0]
@@ -102,7 +109,7 @@ def discrete_wavelet_transform(gray_folder_path):
 
     print('SUCCESS: Completed DWT')
 
-    cell_data = np.array(cell_data)
+    cell_data = np.array(cell_data, dtype=float)
 
     return cell_data, labels
 
@@ -112,8 +119,8 @@ def data_split(cell_data, labels):
     data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=109) # 70% training and 30% test
 
     print('SUCCESS: Split data into training and test sets')
-    print('Training Data Size:', data_train.shape)
-    print('Test Data Size:', data_test.shape)
+    # print('Training Data Size:', data_train.shape)
+    # print('Test Data Size:', data_test.shape)
 
     return data_train, data_test, label_train, label_test
 
@@ -171,10 +178,10 @@ def main():
     cell_data, labels = discrete_wavelet_transform(gray_folder_path)
 
     # Split data into training and test sets
-    # data_train, data_test, label_train, label_test = data_split(cell_data, labels)
+    data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
     # Create a svm Classifier
-    # svm_classifier(data_train, data_test, label_train, label_test)
+    svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
     #kmeans_clustering(data_train, data_test, label_train, label_test)

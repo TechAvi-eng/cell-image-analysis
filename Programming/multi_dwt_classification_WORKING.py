@@ -53,7 +53,7 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
     return
 
 
-def discrete_wavelet_transform(gray_folder_path):
+def discrete_wavelet_transform(gray_folder_path, image_list):
     """
     Complete DWT
     Parameters:
@@ -63,46 +63,77 @@ def discrete_wavelet_transform(gray_folder_path):
     Returns:
         coeffs (array): coefficients array from DWT
     """
-    wavelet = 'coif12'
-    
+    wavelet = 'haar'
+    n = 1
+
     cell_data = []
+
     labels = []
 
+    
     print('STARTING DWT...')
+    
     for image in os.listdir(gray_folder_path):
 
         image_path = gray_folder_path + '/' + image
         imArrayG = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         
-        coeffs = pywt.dwt(imArrayG, wavelet)
-        Approx = coeffs[0]
+        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
+        
+        cA = coeffs[0]
+        cA = cA.flatten()
 
-        # Make the Approximation matrix a single row
-        Approx = Approx.flatten()
-        print(Approx.shape)
+        mean = np.mean(cA)
+        new_row = float(mean)
+        std = np.std(cA)
+        new_row = new_row + float(std)
+        var = np.var(cA)
+        new_row = new_row + float(var)
+        skewness = skew(cA)
+        new_row = new_row + float(skewness)
+        kurt = kurtosis(cA)
+        new_row = new_row + float(kurt)
 
-        approx_mean = np.mean(Approx)
-        approx_std = np.std(Approx)
-        approx_var = np.var(Approx)
-        approx_skew = skew(Approx)
-        approx_kurt = kurtosis(Approx)
+        # Add the data to a new row in the cell_data array 
+        # new_row = [mean, std, var, skewness, kurt]
 
-        # Append the Approximation matrix to the data list
-        #cell_data.append(Approx)
+        # cD = coeffs[1:]
+        # for level in range(1, n+1):
+        #     cD = coeffs[level]
 
-        # Add the mean, std, var, skew and kurtosis to a new row in the data list
-        cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
-        # new_data = [approx_mean, approx_std]
-        # cell_data.append(new_data)
+        #     for i in range(3):
+        #         details = cD[i].flatten()
+
+        #         mean = np.mean(details)
+        #         new_row = new_row + float(mean)
+
+        #         std = np.std(details)
+        #         new_row = new_row + float(std)
+
+        #         var = np.var(details)
+        #         new_row = new_row + float(var)
+
+        #         skewness = skew(details)
+        #         new_row = new_row + float(skewness)
+                
+        #         kurt = kurtosis(details)
+        #         new_row = new_row + float(kurt)
+
+        #         # new_row = new_row + [mean, std, var, skewness, kurt]
+
+
+            # coeffs[level][0]
 
         # Append the label to the labels list
         label = image[0]
         label = int(label)
         labels.append(label)
+        
+        cell_data.append([new_row])
 
     print('SUCCESS: Completed DWT')
 
-    cell_data = np.array(cell_data)
+    cell_data = np.array(cell_data, dtype=float)
 
     return cell_data, labels
 
@@ -112,8 +143,8 @@ def data_split(cell_data, labels):
     data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=109) # 70% training and 30% test
 
     print('SUCCESS: Split data into training and test sets')
-    print('Training Data Size:', data_train.shape)
-    print('Test Data Size:', data_test.shape)
+    # print('Training Data Size:', data_train.shape)
+    # print('Test Data Size:', data_test.shape)
 
     return data_train, data_test, label_train, label_test
 
@@ -168,13 +199,13 @@ def main():
     gray_conversion(image_list, folder_path, gray_folder_path)
 
     # Complete DWT and return data and labels
-    cell_data, labels = discrete_wavelet_transform(gray_folder_path)
+    cell_data, labels = discrete_wavelet_transform(gray_folder_path, image_list)
 
     # Split data into training and test sets
-    # data_train, data_test, label_train, label_test = data_split(cell_data, labels)
+    data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
     # Create a svm Classifier
-    # svm_classifier(data_train, data_test, label_train, label_test)
+    svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
     #kmeans_clustering(data_train, data_test, label_train, label_test)

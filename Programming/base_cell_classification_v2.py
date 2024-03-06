@@ -55,13 +55,10 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
 
 def discrete_wavelet_transform(gray_folder_path):
 
-    wavelet = 'haar'
-    n = 1
-
     cell_data = []
     labels = []
 
-    print('STARTING DWT...')
+    print('STARTING Image Analysis...')
     
     for image in os.listdir(gray_folder_path):
 
