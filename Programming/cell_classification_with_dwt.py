@@ -64,7 +64,7 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
         coeffs (array): coefficients array from DWT
     """
     wavelet = 'db4'
-    n = 4
+    n = 2
 
     cell_data = []
 
@@ -84,34 +84,40 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
         cA = cA.flatten()
 
         mean = np.mean(cA)
-        new_row = [mean]
+        new_row = float(mean)
         std = np.std(cA)
-        new_row = new_row + [std]
+        new_row = new_row + float(std)
         var = np.var(cA)
-        new_row = new_row + [var]
+        new_row = new_row + float(var)
         skewness = skew(cA)
-        new_row = new_row + [skewness]
+        new_row = new_row + float(skewness)
         kurt = kurtosis(cA)
-        new_row = new_row + [kurt]
+        new_row = new_row + float(kurt)
 
         # Add the data to a new row in the cell_data array 
         # new_row = [mean, std, var, skewness, kurt]
 
-        cD = coeffs[1:]
+        # cD = coeffs[1:]
         for level in range(1, n+1):
             cD = coeffs[level]
 
             for i in range(3):
-                mean = np.mean(cD[i])
-                new_row = new_row + [mean]
-                std = np.std(cD[i])
-                new_row = new_row + [std]
-                var = np.var(cD[i])
-                new_row = new_row + [var]
-                skewness = skew(cD[i])
-                new_row = new_row + [skewness]
-                kurt = kurtosis(cD[i])
-                new_row = new_row + [kurt]
+                details = cD[i].flatten()
+
+                mean = np.mean(details)
+                new_row = new_row + float(mean)
+
+                std = np.std(details)
+                new_row = new_row + float(std)
+
+                var = np.var(details)
+                new_row = new_row + float(var)
+
+                skewness = skew(details)
+                new_row = new_row + float(skewness)
+                
+                kurt = kurtosis(details)
+                new_row = new_row + float(kurt)
 
                 # new_row = new_row + [mean, std, var, skewness, kurt]
 
@@ -123,11 +129,11 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
         label = int(label)
         labels.append(label)
         
-        cell_data.append(new_row)
+        cell_data.append([new_row])
 
     print('SUCCESS: Completed DWT')
 
-    cell_data = np.array(cell_data, dtype=int)
+    cell_data = np.array(cell_data, dtype=float)
 
     return cell_data, labels
 

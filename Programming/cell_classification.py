@@ -82,20 +82,19 @@ def discrete_wavelet_transform(gray_folder_path):
         print(Approx.shape)
 
         approx_mean = np.mean(Approx)
-        new_data = [approx_mean]
         approx_std = np.std(Approx)
-        new_data = new_data + [approx_std]
-        # approx_var = np.var(Approx)
-        # approx_skew = skew(Approx)
-        # approx_kurt = kurtosis(Approx)
+        approx_var = np.var(Approx)
+        approx_skew = skew(Approx)
+        print(type(approx_skew))
+        approx_kurt = kurtosis(Approx)
 
         # Append the Approximation matrix to the data list
         #cell_data.append(Approx)
 
         # Add the mean, std, var, skew and kurtosis to a new row in the data list
-        # cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
+        cell_data.append([approx_mean, approx_std, approx_var, approx_skew, approx_kurt])
         # new_data = [approx_mean, approx_std]
-        cell_data.append(new_data)
+        # cell_data.append(new_data)
 
         # Append the label to the labels list
         label = image[0]
