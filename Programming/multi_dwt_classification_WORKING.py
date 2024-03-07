@@ -39,7 +39,7 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
         folder_path (str): folder path of raw images
         gray_folder_path (str): folder path of grayscale images    
     """
-    # If the Gray Folder Path does not contai
+    
     for image_name in image_list:
         image_path = os.path.join(folder_path, image_name)
         imArray = cv2.imread(image_path)
@@ -53,7 +53,7 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
     return
 
 
-def discrete_wavelet_transform(gray_folder_path, image_list):
+def discrete_wavelet_transform(gray_folder_path):
     """
     Complete DWT
     Parameters:
@@ -64,7 +64,7 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
         coeffs (array): coefficients array from DWT
     """
     wavelet = 'haar'
-    n = 1
+    n = 2
 
     cell_data = []
 
@@ -73,13 +73,14 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
     
     print('STARTING DWT...')
     
+    # For first 5 images in the folder
     for image in os.listdir(gray_folder_path):
 
         image_path = gray_folder_path + '/' + image
         imArrayG = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         
         coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
-        
+
         cA = coeffs[0]
         cA = cA.flatten()
 
@@ -95,34 +96,27 @@ def discrete_wavelet_transform(gray_folder_path, image_list):
         new_row = new_row + float(kurt)
 
         # Add the data to a new row in the cell_data array 
-        # new_row = [mean, std, var, skewness, kurt]
 
-        # cD = coeffs[1:]
-        # for level in range(1, n+1):
-        #     cD = coeffs[level]
+        for level in range(1, n+1):
+            cD = coeffs[level]
 
-        #     for i in range(3):
-        #         details = cD[i].flatten()
+            for i in range(3):
+                details = cD[i].flatten()
 
-        #         mean = np.mean(details)
-        #         new_row = new_row + float(mean)
+                mean = np.mean(details)
+                new_row = new_row + float(mean)
 
-        #         std = np.std(details)
-        #         new_row = new_row + float(std)
+                std = np.std(details)
+                new_row = new_row + float(std)
 
-        #         var = np.var(details)
-        #         new_row = new_row + float(var)
+                var = np.var(details)
+                new_row = new_row + float(var)
 
-        #         skewness = skew(details)
-        #         new_row = new_row + float(skewness)
+                skewness = skew(details)
+                new_row = new_row + float(skewness)
                 
-        #         kurt = kurtosis(details)
-        #         new_row = new_row + float(kurt)
-
-        #         # new_row = new_row + [mean, std, var, skewness, kurt]
-
-
-            # coeffs[level][0]
+                kurt = kurtosis(details)
+                new_row = new_row + float(kurt)
 
         # Append the label to the labels list
         label = image[0]
@@ -193,13 +187,13 @@ def main():
     gray_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/rpe_gray_images'
 
     # Import image names
-    image_list = cell_image_import(folder_path)
+    # image_list = cell_image_import(folder_path)
 
     # Convert images to grayscale and save as new images
-    gray_conversion(image_list, folder_path, gray_folder_path)
+    # gray_conversion(image_list, folder_path, gray_folder_path)
 
     # Complete DWT and return data and labels
-    cell_data, labels = discrete_wavelet_transform(gray_folder_path, image_list)
+    cell_data, labels = discrete_wavelet_transform(gray_folder_path)
 
     # Split data into training and test sets
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)

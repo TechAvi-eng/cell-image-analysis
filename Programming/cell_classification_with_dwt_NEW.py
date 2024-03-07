@@ -55,7 +55,7 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
 
 def discrete_wavelet_transform(gray_folder_path):
 
-    wavelet = 'coif12'
+    wavelet = 'haar'
     n = 2
 
     cell_data = []
@@ -169,10 +169,10 @@ def main():
     gray_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/rpe_gray_images'
 
     # Import image names
-    image_list = cell_image_import(folder_path)
+    # image_list = cell_image_import(folder_path)
 
     # Convert images to grayscale and save as new images
-    gray_conversion(image_list, folder_path, gray_folder_path)
+    # gray_conversion(image_list, folder_path, gray_folder_path)
 
     # Complete DWT and return data and labels
     cell_data, labels = discrete_wavelet_transform(gray_folder_path)
