@@ -56,7 +56,7 @@ def gray_conversion(image_list, folder_path, gray_folder_path):
 def discrete_wavelet_transform(gray_folder_path):
 
     wavelet = 'haar'
-    n = 2
+    n = 3
 
     cell_data = []
     labels = []

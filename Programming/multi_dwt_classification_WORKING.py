@@ -64,7 +64,7 @@ def discrete_wavelet_transform(gray_folder_path):
         coeffs (array): coefficients array from DWT
     """
     wavelet = 'haar'
-    n = 2
+    n = 5
 
     cell_data = []
 
@@ -85,49 +85,46 @@ def discrete_wavelet_transform(gray_folder_path):
         cA = cA.flatten()
 
         mean = np.mean(cA)
-        new_row = float(mean)
+
         std = np.std(cA)
-        new_row = new_row + float(std)
+
         var = np.var(cA)
-        new_row = new_row + float(var)
+
         skewness = skew(cA)
-        new_row = new_row + float(skewness)
+
         kurt = kurtosis(cA)
-        new_row = new_row + float(kurt)
 
-        # Add the data to a new row in the cell_data array 
+        new_row = [mean, std, var, skewness, kurt]
 
-        for level in range(1, n+1):
+        # Starts at level n decomposition and ends at level 1
+        for level in range(1,n+1):
             cD = coeffs[level]
 
+            # Loops through vertical, horizontal and diagonal detail coefficients
             for i in range(3):
+                details = cD[i]
                 details = cD[i].flatten()
 
                 mean = np.mean(details)
-                new_row = new_row + float(mean)
-
                 std = np.std(details)
-                new_row = new_row + float(std)
-
                 var = np.var(details)
-                new_row = new_row + float(var)
-
                 skewness = skew(details)
-                new_row = new_row + float(skewness)
-                
                 kurt = kurtosis(details)
-                new_row = new_row + float(kurt)
+
+                new_row = new_row + [mean, std, var, skewness, kurt]
 
         # Append the label to the labels list
         label = image[0]
         label = int(label)
         labels.append(label)
         
-        cell_data.append([new_row])
+        cell_data.append(new_row)
+        
 
     print('SUCCESS: Completed DWT')
 
     cell_data = np.array(cell_data, dtype=float)
+    print('Cell Data:', cell_data.shape)
 
     return cell_data, labels
 
@@ -137,20 +134,20 @@ def data_split(cell_data, labels):
     data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=109) # 70% training and 30% test
 
     print('SUCCESS: Split data into training and test sets')
-    # print('Training Data Size:', data_train.shape)
-    # print('Test Data Size:', data_test.shape)
+    print('Training Data Size:', data_train.shape)
+    print('Test Data Size:', data_test.shape)
 
     return data_train, data_test, label_train, label_test
 
 
 def svm_classifier(data_train, data_test, label_train, label_test):
-    #Create a svm Classifier
+    #cCreate a svm Classifier
     clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
 
     print('SUCCESS: Created SVM Classifier')
 
     print('STARTING Training SVM Classifier...')
-    #Train the model using the training sets
+    # Train the model using the training sets
     clf.fit(data_train, label_train)
 
     print('SUCCESS: Trained SVM Classifier')
