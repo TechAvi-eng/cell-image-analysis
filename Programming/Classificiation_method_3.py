@@ -22,10 +22,6 @@ def cell_image_import(input_folder_path):
     """
     
     image_list = []
-    image_morphology_1 = 0
-    image_morphology_2 = 0
-    image_morphology_3 = 0
-    image_morphology_4 = 0
 
     for filename in os.listdir(input_folder_path):
         # if filename endswith '.png' and starts with '1' or '2' or '3'
@@ -50,7 +46,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     """
     
     wavelet = 'db12'
-    n = 2
+    n = 6
 
     cell_data = []
 
@@ -185,10 +181,10 @@ def main():
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
     # Create a svm Classifier
-    svm_classifier(data_train, data_test, label_train, label_test)
+    # svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
-    #kmeans_clustering(data_train, data_test, label_train, label_test)
+    kmeans_clustering(data_train, data_test, label_train, label_test)
     
     
 

@@ -22,10 +22,6 @@ def cell_image_import(input_folder_path):
     """
     
     image_list = []
-    image_morphology_1 = 0
-    image_morphology_2 = 0
-    image_morphology_3 = 0
-    image_morphology_4 = 0
 
     for filename in os.listdir(input_folder_path):
         # if filename endswith '.png' and starts with '1' or '2' or '3'
@@ -73,20 +69,13 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         cA = cA.flatten()
 
         mean = np.mean(cA)
-
         std = np.std(cA)
-
         skewness = skew(cA)
-
         kurt = kurtosis(cA)
-
         median = np.median(cA)
-
         co_range = np.max(cA) - np.min(cA)
-
         mean_square = np.mean(cA ** 2)
         rms = np.sqrt(mean_square)
-
         entro = shannon_entropy(cA)
 
         new_row = [mean, std, skewness, kurt, median, co_range, rms, entro]
@@ -107,10 +96,8 @@ def discrete_wavelet_transform(input_folder_path, image_list):
                 kurt = kurtosis(details)
                 median = np.median(details)
                 co_range = np.max(details) - np.min(details)
-
                 mean_square = np.mean(details ** 2)
                 rms = np.sqrt(mean_square)
-
                 entro = shannon_entropy(details)
 
                 single_detail.append([mean, std, skewness, kurt, median, co_range, rms, entro])
@@ -122,7 +109,6 @@ def discrete_wavelet_transform(input_folder_path, image_list):
             for i in range(len(single_detail[0])):
                 append_row[i] = np.mean(single_detail[:, i])
 
-            # new_row = new_row + [mean, std, skewness, kurt, median, co_range, rms, entro]
             new_row = new_row + append_row
 
         # Append the label to the labels list
@@ -204,10 +190,10 @@ def main():
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
     # Create a svm Classifier
-    svm_classifier(data_train, data_test, label_train, label_test)
+    # svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
-    #kmeans_clustering(data_train, data_test, label_train, label_test)
+    kmeans_clustering(data_train, data_test, label_train, label_test)
     
     
 
