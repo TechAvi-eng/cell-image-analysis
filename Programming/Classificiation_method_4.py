@@ -73,13 +73,20 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         cA = cA.flatten()
 
         mean = np.mean(cA)
+
         std = np.std(cA)
+
         skewness = skew(cA)
+
         kurt = kurtosis(cA)
+
         median = np.median(cA)
+
         co_range = np.max(cA) - np.min(cA)
+
         mean_square = np.mean(cA ** 2)
         rms = np.sqrt(mean_square)
+
         entro = shannon_entropy(cA)
 
         new_row = [mean, std, skewness, kurt, median, co_range, rms, entro]
@@ -89,6 +96,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
             cD = coeffs[level]
 
             # Loops through vertical, horizontal and diagonal detail coefficients
+            single_detail = []
             for i in range(3):
                 details = cD[i]
                 details = cD[i].flatten()
@@ -105,7 +113,17 @@ def discrete_wavelet_transform(input_folder_path, image_list):
 
                 entro = shannon_entropy(details)
 
-                new_row = new_row + [mean, std, skewness, kurt, median, co_range, rms, entro]
+                single_detail.append([mean, std, skewness, kurt, median, co_range, rms, entro])
+            
+            # Calculate the average of each column in the single_detail array and append to new_row
+            single_detail = np.array(single_detail)
+            append_row = [0] * len(single_detail[0])
+
+            for i in range(len(single_detail[0])):
+                append_row[i] = np.mean(single_detail[:, i])
+
+            # new_row = new_row + [mean, std, skewness, kurt, median, co_range, rms, entro]
+            new_row = new_row + append_row
 
         # Append the label to the labels list
         label = image[0]
@@ -114,6 +132,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         
         cell_data.append(new_row)
         
+
     print('SUCCESS: Completed DWT')
 
     cell_data = np.array(cell_data, dtype=float)
