@@ -10,7 +10,6 @@ from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from scipy.stats import skew, kurtosis
-from skimage.measure import shannon_entropy
 
 def cell_image_import(input_folder_path):
     """
@@ -24,6 +23,8 @@ def cell_image_import(input_folder_path):
     image_list = []
 
     for filename in os.listdir(input_folder_path):
+        # if filename endswith '.png' and starts with '1' or '2' or '3'
+        # if filename.endswith('.png') and (filename.startswith('1') or filename.startswith('2') or filename.startswith('3')):
         if filename.endswith('.png'):  
             image_list.append(filename)
 
@@ -42,6 +43,9 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     Returns:
         coeffs (array): coefficients array from DWT
     """
+    
+    wavelet = 'db4'
+    n = 1
 
     cell_data = []
 
@@ -49,6 +53,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
 
     print('STARTING DWT...')
     
+    # For first 5 images in the folder
     for image in image_list:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
@@ -57,37 +62,49 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         
         print('Image Imported:', image)
 
-        imArrayG = np.float64(imArrayG)
-        imArrayG = imArrayG.flatten()
+        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
 
-        mean = np.mean(imArrayG)
+        cA = coeffs[0]
+        cA = cA.flatten()
 
-        std = np.std(imArrayG)
+        mean = np.mean(cA)
 
-        skewness = skew(imArrayG)
+        std = np.std(cA)
 
-        kurt = kurtosis(imArrayG)
+        var = np.var(cA)
 
-        median = np.median(imArrayG)
+        skewness = skew(cA)
 
-        co_range = np.max(imArrayG) - np.min(imArrayG)
+        kurt = kurtosis(cA)
 
-        mean_square = np.mean(imArrayG ** 2)
-        rms = np.sqrt(mean_square)
+        new_row = [mean, std, var, skewness, kurt]
 
-        entro = shannon_entropy(imArrayG)
+        # Starts at level n decomposition and ends at level 1
+        for level in range(1,n+1):
+            cD = coeffs[level]
 
-        new_row = [mean, std, skewness, kurt, median, co_range, rms, entro]
-        
-        cell_data.append(new_row)
+            # Loops through vertical, horizontal and diagonal detail coefficients
+            for i in range(3):
+                details = cD[i]
+                details = cD[i].flatten()
+
+                mean = np.mean(details)
+                std = np.std(details)
+                var = np.var(details)
+                skewness = skew(details)
+                kurt = kurtosis(details)
+
+                new_row = new_row + [mean, std, var, skewness, kurt]
 
         # Append the label to the labels list
         label = image[0]
         label = int(label)
         labels.append(label)
         
+        cell_data.append(new_row)
+        
 
-    print('SUCCESS: Completed Feature Extraction')
+    print('SUCCESS: Completed DWT')
 
     cell_data = np.array(cell_data, dtype=float)
     print('Cell Data:', cell_data.shape)
