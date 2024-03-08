@@ -48,8 +48,8 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         coeffs (array): coefficients array from DWT
     """
     
-    wavelet = 'haar'
-    n = 1
+    wavelet = 'db12'
+    n = 2
 
     cell_data = []
 
@@ -58,7 +58,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     print('STARTING DWT...')
     
     # For first 5 images in the folder
-    for image in image_list[:100]:
+    for image in image_list:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
         imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
@@ -215,7 +215,7 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
 
 
 def main():
-    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Subwindows'
+    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
     
     # Import image names
     image_list = cell_image_import(input_folder_path)
