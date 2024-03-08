@@ -11,6 +11,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from scipy.stats import skew, kurtosis
 from skimage.measure import shannon_entropy
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 def cell_image_import(input_folder_path):
     """
@@ -45,8 +48,8 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         coeffs (array): coefficients array from DWT
     """
     
-    wavelet = 'db12'
-    n = 6
+    wavelet = 'haar'
+    n = 1
 
     cell_data = []
 
@@ -55,7 +58,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     print('STARTING DWT...')
     
     # For first 5 images in the folder
-    for image in image_list:
+    for image in image_list[:100]:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
         imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
@@ -150,6 +153,49 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     return
 
 
+def svm_classifier_visualisation(data_train, data_test, label_train, label_test):
+    # Create a svm Classifier
+    classifier = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
+
+    data_train = data_train[:, :2]
+    data_test = data_test[:, :2]
+    
+    # Train the model using the training sets
+    classifier.fit(data_train, label_train)
+
+    print('SUCCESS: Trained SVM Classifier')
+    
+    label_pred = classifier.predict(data_test)
+
+    # Model Accuracy: how often is the classifier correct?
+    print("Accuracy for 2 Feature Classification:",metrics.accuracy_score(label_test, label_pred))
+
+    print("Creating Grid...")
+    # Generate a grid of points to plot decision boundaries
+    x_min, x_max = data_train[:, 0].min() - 1, data_train[:, 0].max() + 1
+    y_min, y_max = data_train[:, 1].min() - 1, data_train[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
+                        np.arange(y_min, y_max, 0.1))
+
+    print("Plotting Decision Boundaries...")
+    # Plot decision boundaries
+    Z = classifier.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, alpha=0.4)
+
+    print("Plotting Datapoints...")
+    # Plot data points
+    sns.scatterplot(x=data_train[:, 0], y=data_train[:, 1], hue=label_train, palette="Set1")
+
+    plt.xlabel('Mean')
+    plt.ylabel('Standard Deviation')
+    plt.title('SVM Decision Boundaries')
+    plt.legend(title='Labels')
+    plt.show()
+
+    return classifier
+
+
 def kmeans_clustering(data_train, data_test, label_train, label_test):
     kmeans = KMeans(n_clusters=3)
     kmeans.fit(data_train)
@@ -184,9 +230,10 @@ def main():
     # svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
-    kmeans_clustering(data_train, data_test, label_train, label_test)
+    # kmeans_clustering(data_train, data_test, label_train, label_test)
     
-    
+    # Visualise SVM decision boundaries
+    svm_classifier_visualisation(data_train, data_test, label_train, label_test)
 
 if __name__ == "__main__":
     main()
