@@ -85,7 +85,7 @@ def svm_classifier(data_train, data_test, label_train, label_test):
 
 
 def main():
-    folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/rpe_raw_images'
+    folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Subwindows'
 
     # Import image
     images_data, image_labels = cell_image_import(folder_path)

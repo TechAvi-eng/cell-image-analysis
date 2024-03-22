@@ -215,7 +215,7 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
 
 
 def main():
-    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
+    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Subwindows'
     
     # Import image names
     image_list = cell_image_import(input_folder_path)
@@ -227,13 +227,13 @@ def main():
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
     # Create a svm Classifier
-    # svm_classifier(data_train, data_test, label_train, label_test)
+    svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
     # kmeans_clustering(data_train, data_test, label_train, label_test)
     
     # Visualise SVM decision boundaries
-    svm_classifier_visualisation(data_train, data_test, label_train, label_test)
+    #svm_classifier_visualisation(data_train, data_test, label_train, label_test)
 
 if __name__ == "__main__":
     main()

@@ -38,7 +38,6 @@ def image_info(image_name, imArray):
     plt.xlabel('Pixel intensity')
     plt.ylabel('Number of pixels')
     plt.tight_layout()
-    plt.savefig('Programming/edited_images' + image_name + '_histogram.png')
     plt.show()
     
 
@@ -60,7 +59,6 @@ def image_import(folder_path, image_name):
     display_image('Original Image', imArray)
 
     #image_info('Original_Image', imArray)
-
 
     return imArray
 
@@ -342,11 +340,11 @@ def cell_identification(binary_image, imArrayG, image_name):
     result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR) # ***Only to display contour in colour
 
     cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
-    #display_image('Contours on Grayscale Image', result)
+    display_image('Contours on Grayscale Image', result)
 
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 00
+    min_contour_area = 200
 
     # Filter contours based on area
     filtered_contours = []
