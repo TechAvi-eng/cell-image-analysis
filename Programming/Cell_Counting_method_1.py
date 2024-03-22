@@ -79,6 +79,7 @@ def gray_conversion(imArray):
     display_image('Gray 8-bit Integer Image', imArrayG)
     
     image_info('Gray_8_bit_Image', imArrayG)
+    print("Dynamic Range Before Processing: ", imArrayG.max()-imArrayG.min())
 
     return imArrayG
 
@@ -91,32 +92,25 @@ def dynamic_range(imArrayG):
     Returns:
         adjusted_image (array): grayscale 8-bit image array
     """
-    # Find the maximum pixel intensity in the image
-    max_intensity = np.max(imArrayG)
+    print('DYNAMIC RANGE ADJUSTMENT:')
+    minimum_value = np.min(imArrayG)
+    maximum_value = np.max(imArrayG)
 
-    # Define the target maximum intensity
-    # Determine the intensity with the most pixels
-    hist = cv2.calcHist([imArrayG], [0], None, [256], [0, 256])
-    peak_intensity = np.argmax(hist)
-    print('Peak Intensity: ' + str(peak_intensity))
-    std = imArrayG.std()
-    print('Standard Deviation: ' + str(std))
-    target_max_intensity = peak_intensity + 2 * std
+    brightness = minimum_value
+    contrast_ratio = 255 / (maximum_value - minimum_value)
+    img_contrast = imArrayG * (contrast_ratio)
 
-    # Calculate the ratio to adjust brightness and contrast
-    brightness_ratio = max_intensity / target_max_intensity
-    print('Brightness Ratio: ' + str(brightness_ratio))
-    contrast_ratio = 255 / max_intensity
-    print('Contrast Ratio: ' + str(contrast_ratio))
-
-    # Adjust brightness and contrast
-    adjusted_image = cv2.convertScaleAbs(imArrayG, alpha=brightness_ratio, beta=0)
-    adjusted_image = cv2.convertScaleAbs(adjusted_image, alpha=contrast_ratio, beta=0)
+    minimum_value = np.min(img_contrast)
+    img_contrast = img_contrast - brightness
+    adjusted_image = np.clip(img_contrast, 0, 255)
+    adjusted_image = np.uint8(adjusted_image)
 
     # Display the adjusted image
     display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
 
+    
     image_info('Adjusted_Image', adjusted_image)
+    print("Dynamic Range After Processing: ", adjusted_image.max()-adjusted_image.min())
 
     return adjusted_image
 
@@ -298,6 +292,7 @@ def cell_identification(binary_image, imArrayG):
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
+    # morphed = binary_image
     display_image('Morphed Image', morphed)
     
     # Contour detection
@@ -349,28 +344,28 @@ def main():
     imArrayG = gray_conversion(imArray)
 
     # Adjust brightness and contrast to improve the dynamic range
-    imArrayG = dynamic_range(imArrayG)
+    adjusted_image = dynamic_range(imArrayG)
 
-    n = 4
+    n = 1
     wavelet = 'coif17'
     
     # Complete DWT
-    coeffs = discrete_wavelet_transform(imArrayG, n, wavelet)
+    coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)
 
     # Produce coefficient map
     # coeffs_map(coeffs)
 
     # Reconstruct images with only approximation and detail coefficients respectively
-    prepared_image = reconstrucuted_images(coeffs, n, wavelet)
+    # prepared_image = reconstrucuted_images(coeffs, n, wavelet)
 
     # Evaluate the performance before and after DWT applied
     # DWT_performance(imArrayG)
 
     # Binary thresholding
-    binary_image_simple = binary_thresholding(prepared_image)
+    # binary_image_simple = binary_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
-    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
+    # result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
     
 if __name__ == "__main__":
     main()
