@@ -12,6 +12,8 @@ from sklearn.metrics import accuracy_score, classification_report
 from scipy.stats import skew, kurtosis
 from skimage.measure import shannon_entropy
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 def cell_image_import(input_folder_path):
     """
@@ -25,6 +27,8 @@ def cell_image_import(input_folder_path):
     image_list = []
 
     for filename in os.listdir(input_folder_path):
+        # if filename endswith '.png' and starts with '1' or '2' or '3'
+        # if filename.endswith('.png') and (filename.startswith('1') or filename.startswith('2') or filename.startswith('3')):
         if filename.endswith('.png'):  
             image_list.append(filename)
 
@@ -43,6 +47,9 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     Returns:
         coeffs (array): coefficients array from DWT
     """
+    
+    wavelet = 'db2'
+    n = 2
 
     cell_data = []
 
@@ -50,6 +57,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
 
     print('STARTING DWT...')
     
+    # For first 5 images in the folder
     for image in image_list:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
@@ -58,37 +66,54 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         
         print('Image Imported:', image)
 
-        imArrayG = np.float64(imArrayG)
-        imArrayG = imArrayG.flatten()
+        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
 
-        mean = np.mean(imArrayG)
+        cA = coeffs[0]
+        cA = cA.flatten()
 
-        std = np.std(imArrayG)
-
-        skewness = skew(imArrayG)
-
-        kurt = kurtosis(imArrayG)
-
-        median = np.median(imArrayG)
-
-        co_range = np.max(imArrayG) - np.min(imArrayG)
-
-        mean_square = np.mean(imArrayG ** 2)
+        mean = np.mean(cA)
+        std = np.std(cA)
+        skewness = skew(cA)
+        kurt = kurtosis(cA)
+        median = np.median(cA)
+        co_range = np.max(cA) - np.min(cA)
+        mean_square = np.mean(cA ** 2)
         rms = np.sqrt(mean_square)
-
-        entro = shannon_entropy(imArrayG)
+        entro = shannon_entropy(cA)
 
         new_row = [mean, std, skewness, kurt, median, co_range, rms, entro]
-        
-        cell_data.append(new_row)
+
+        # Starts at level n decomposition and ends at level 1
+        for level in range(1,n+1):
+            cD = coeffs[level]
+
+            # Loops through vertical, horizontal and diagonal detail coefficients
+            for i in range(3):
+                details = cD[i]
+                details = cD[i].flatten()
+
+                mean = np.mean(details)
+                std = np.std(details)
+                skewness = skew(details)
+                kurt = kurtosis(details)
+                median = np.median(details)
+                co_range = np.max(details) - np.min(details)
+
+                mean_square = np.mean(details ** 2)
+                rms = np.sqrt(mean_square)
+
+                entro = shannon_entropy(details)
+
+                new_row = new_row + [mean, std, skewness, kurt, median, co_range, rms, entro]
 
         # Append the label to the labels list
         label = image[0]
         label = int(label)
         labels.append(label)
         
-
-    print('SUCCESS: Completed Feature Extraction')
+        cell_data.append(new_row)
+        
+    print('SUCCESS: Completed DWT')
 
     cell_data = np.array(cell_data, dtype=float)
     print('Cell Data:', cell_data.shape)
@@ -107,28 +132,21 @@ def data_split(cell_data, labels):
     return data_train, data_test, label_train, label_test
 
 
-def svm_classifier(data_train, data_test, label_train, label_test):
-    #cCreate a svm Classifier
-    clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
-
-    print('SUCCESS: Created SVM Classifier')
-
-    print('STARTING Training SVM Classifier...')
-    # Train the model using the training sets
-    clf.fit(data_train, label_train)
-
-    print('SUCCESS: Trained SVM Classifier')
-
-    #Predict the response for test dataset
-    label_pred = clf.predict(data_test)
-
-    # Model Accuracy: how often is the classifier correct?
-    print("Accuracy:",metrics.accuracy_score(label_test, label_pred))
-
-    return
-
-
 def kmeans_clustering(data_train, data_test, label_train, label_test):
+    inertias = []
+    # Save first 10 data points for elbow method
+    elbow_data = data_train[:100]
+    max_clusters = len(elbow_data)
+    for i in range(1, max_clusters):
+        kmeans = KMeans(n_clusters=i)
+        kmeans.fit(elbow_data)
+        inertias.append(kmeans.inertia_)
+    
+    plt.plot(range(1, max_clusters), inertias, marker = 'o')
+    plt.title('Elbow Method')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Inertia')
+    plt.show()
 
     kmeans = KMeans(n_clusters=4)
     kmeans.fit(data_train)
@@ -159,13 +177,9 @@ def main():
     # Split data into training and test sets
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
-    # Create a svm Classifier
-    # svm_classifier(data_train, data_test, label_train, label_test)
-
     # KMeans Clustering
     kmeans_clustering(data_train, data_test, label_train, label_test)
-    
-    
+
 
 if __name__ == "__main__":
     main()
