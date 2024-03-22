@@ -8,6 +8,7 @@ import os
 from PIL import Image
 from skimage.restoration import (denoise_wavelet, estimate_sigma)
 from skimage.metrics import (peak_signal_noise_ratio, structural_similarity)
+import time
 
 def display_image(image_name, image_array):
     """
@@ -108,7 +109,7 @@ def dynamic_range(imArrayG):
     # Display the adjusted image
     display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
 
-    
+
     image_info('Adjusted_Image', adjusted_image)
     print("Dynamic Range After Processing: ", adjusted_image.max()-adjusted_image.min())
 
@@ -191,26 +192,31 @@ def DWT_performance(imArrayG):
     # Create empty lists to store PSNR and SSIM values, with columns representing the wavelet function used and rows representing the number of levels used
     psnr_list = np.zeros((len(wavelet_list), 3))
     ssim_list = np.zeros((len(wavelet_list), 3))
-
+    comp_time_list = np.zeros((len(wavelet_list), 3))
+    
     psnr_highest_name = ''
     ssim_highest_name = ''
 
     psnr_highest = 0
     ssim_highest = 0
 
-    for n in range(3, 6):
+    for n in range(4,5):
         for i in wavelet_list:
             wavelet = i
 
+            start = time.time()
             coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
 
             coeffs_A = list(coeffs)
 
-            for i in range(1, n+1):
-                coeffs_A[i] = tuple(np.zeros_like(element) for element in coeffs[i])
+            for y in range(1, n+1):
+                coeffs_A[y] = tuple(np.zeros_like(element) for element in coeffs[y])
 
             reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
             reconstructed_image_A = np.uint8(reconstructed_image_A)
+
+            end = time.time()
+            comp_time = end - start
 
             psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A)
             ssim_A = structural_similarity(imArrayG, reconstructed_image_A)
@@ -226,7 +232,8 @@ def DWT_performance(imArrayG):
             # Store PSNR and SSIM values in the list at column = wavelet and row = n
             psnr_list[wavelet_list.index(wavelet)][n-3] = psnr_A
             ssim_list[wavelet_list.index(wavelet)][n-3] = ssim_A
-            
+            comp_time_list[wavelet_list.index(wavelet)][n-3] = comp_time
+
             print("Completed " + str(wavelet) + " at " + str(n) + " levels")
 
     # Output the wavelet function gives the highest PSNR and SSIM
@@ -240,7 +247,6 @@ def DWT_performance(imArrayG):
     plt.xlabel('Wavelet Function')
     plt.ylabel('Peak Signal-To-Noise Ratio (dB)')
     plt.title('Peak Signal-To-Noise Ratio (dB) against Wavelet Function')
-    plt.legend(['3 levels', '4 levels', '5 levels'])
     plt.show()
 
     # Produce a graph of the SSIM against the wavelet used
@@ -250,9 +256,38 @@ def DWT_performance(imArrayG):
     plt.xlabel('Wavelet Function')
     plt.ylabel('Structural Similarity (SSIM) Index')
     plt.title('Structural Similarity (SSIM) Index against Wavelet Function')
-    plt.legend(['3 levels', '4 levels', '5 levels'])
+    plt.show()
+
+    # Produce a graph of the computation time against the wavelet used
+    plt.figure(figsize=(10,7))
+    plt.plot(wavelet_list, comp_time_list)
+    plt.xticks(rotation=90)
+    plt.xlabel('Wavelet Function')
+    plt.ylabel('Computation Time (s)')
+    plt.title('Computation Time (s) against Wavelet Function')
     plt.show()
     
+    # Print the wavelet functions
+    print("Wavelet Functions")
+    for i in range(len(wavelet_list)):
+        print(wavelet_list[i])
+
+    # Print the PSNR values for each wavelet function
+    print("PSNR Values for each Wavelet Function")
+    # Convert the PSNR list to a string from a np array
+    for i in range(len(wavelet_list)):
+        print(str(psnr_list[i]))
+
+    # Print the SSIM values for each wavelet function
+    print("SSIM Values for each Wavelet Function")
+    for i in range(len(wavelet_list)):
+        print(str(ssim_list[i]))
+    
+    # Print the computation time for each wavelet function
+    print("Computation Time for each Wavelet Function")
+    for i in range(len(wavelet_list)):
+        print(str(comp_time_list[i]))
+
 
 def binary_thresholding(prepared_image):
     """
