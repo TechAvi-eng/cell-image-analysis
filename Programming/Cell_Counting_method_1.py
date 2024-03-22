@@ -33,8 +33,9 @@ def image_info(image_name, imArray):
     print(f'Minimum: {imArray.min()}')
     print(f'Maximum: {imArray.max()}')
 
-    # Display the histogram for number of pixels against pixel intensity
+    # Display the histogram for number of pixels against pixel intensity, include the image_name
     plt.hist(imArray.flatten(), bins=100) #, range=(0, 255)
+    plt.title(f'Histogram of pixel intensity for {image_name}')
     plt.xlabel('Pixel intensity')
     plt.ylabel('Number of pixels')
     plt.tight_layout()
@@ -77,9 +78,47 @@ def gray_conversion(imArray):
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
-    #image_info('Gray_8_bit_Image', imArrayG)
+    image_info('Gray_8_bit_Image', imArrayG)
 
     return imArrayG
+
+
+def dynamic_range(imArrayG):
+    """
+    Adjust brightness and contrast
+    Parameters:
+        imArrayG (array): grayscale 8-bit image array
+    Returns:
+        adjusted_image (array): grayscale 8-bit image array
+    """
+    # Find the maximum pixel intensity in the image
+    max_intensity = np.max(imArrayG)
+
+    # Define the target maximum intensity
+    # Determine the intensity with the most pixels
+    hist = cv2.calcHist([imArrayG], [0], None, [256], [0, 256])
+    peak_intensity = np.argmax(hist)
+    print('Peak Intensity: ' + str(peak_intensity))
+    std = imArrayG.std()
+    print('Standard Deviation: ' + str(std))
+    target_max_intensity = peak_intensity + 2 * std
+
+    # Calculate the ratio to adjust brightness and contrast
+    brightness_ratio = max_intensity / target_max_intensity
+    print('Brightness Ratio: ' + str(brightness_ratio))
+    contrast_ratio = 255 / max_intensity
+    print('Contrast Ratio: ' + str(contrast_ratio))
+
+    # Adjust brightness and contrast
+    adjusted_image = cv2.convertScaleAbs(imArrayG, alpha=brightness_ratio, beta=0)
+    adjusted_image = cv2.convertScaleAbs(adjusted_image, alpha=contrast_ratio, beta=0)
+
+    # Display the adjusted image
+    display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
+
+    image_info('Adjusted_Image', adjusted_image)
+
+    return adjusted_image
 
 
 def discrete_wavelet_transform(imArrayG, n, wavelet):
@@ -301,13 +340,16 @@ def cell_identification(binary_image, imArrayG):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = '1_00009_005_4_1'
+    image_name = '3_00001'
 
     # Import image
     imArray = image_import(folder_path, image_name)
 
     # Convert image to grayscale and convert to 8-bit integer
     imArrayG = gray_conversion(imArray)
+
+    # Adjust brightness and contrast to improve the dynamic range
+    imArrayG = dynamic_range(imArrayG)
 
     n = 4
     wavelet = 'coif17'
