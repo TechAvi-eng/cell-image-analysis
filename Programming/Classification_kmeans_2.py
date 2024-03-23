@@ -46,8 +46,8 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         coeffs (array): coefficients array from DWT
     """
     
-    wavelet = 'db2'
-    n = 4
+    wavelet = 'db12'
+    n = 1
 
     cell_data = []
 

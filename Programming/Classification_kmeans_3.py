@@ -27,8 +27,6 @@ def cell_image_import(input_folder_path):
     image_list = []
 
     for filename in os.listdir(input_folder_path):
-        # if filename endswith '.png' and starts with '1' or '2' or '3'
-        # if filename.endswith('.png') and (filename.startswith('1') or filename.startswith('2') or filename.startswith('3')):
         if filename.endswith('.png'):  
             image_list.append(filename)
 
@@ -49,7 +47,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     """
     
     wavelet = 'db12'
-    n = 2
+    n = 6
 
     cell_data = []
 
@@ -132,84 +130,15 @@ def data_split(cell_data, labels):
     return data_train, data_test, label_train, label_test
 
 
-def svm_classifier(data_train, data_test, label_train, label_test):
-    #cCreate a svm Classifier
-    clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
-
-    print('SUCCESS: Created SVM Classifier')
-
-    print('STARTING Training SVM Classifier...')
-    # Train the model using the training sets
-    clf.fit(data_train, label_train)
-
-    print('SUCCESS: Trained SVM Classifier')
-
-    #Predict the response for test dataset
-    label_pred = clf.predict(data_test)
-
-    # Model Accuracy: how often is the classifier correct?
-    print("Accuracy:",metrics.accuracy_score(label_test, label_pred))
-
-    return
-
-
-def svm_classifier_visualisation(data_train, data_test, label_train, label_test):
-    # Create a svm Classifier
-    classifier = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
-
-    data_train = data_train[:, :2]
-    data_test = data_test[:, :2]
-    
-    # Train the model using the training sets
-    classifier.fit(data_train, label_train)
-
-    print('SUCCESS: Trained SVM Classifier')
-    
-    label_pred = classifier.predict(data_test)
-
-    # Model Accuracy: how often is the classifier correct?
-    print("Accuracy for 2 Feature Classification:",metrics.accuracy_score(label_test, label_pred))
-
-    print("Creating Grid...")
-    # Generate a grid of points to plot decision boundaries
-    x_min, x_max = data_train[:, 0].min() - 1, data_train[:, 0].max() + 1
-    y_min, y_max = data_train[:, 1].min() - 1, data_train[:, 1].max() + 1
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
-                        np.arange(y_min, y_max, 0.1))
-
-    print("Plotting Decision Boundaries...")
-    # Plot decision boundaries
-    Z = classifier.predict(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-    plt.contourf(xx, yy, Z, alpha=0.4)
-
-    print("Plotting Datapoints...")
-    # Plot data points
-    sns.scatterplot(x=data_train[:, 0], y=data_train[:, 1], hue=label_train, palette="Set1")
-
-    plt.xlabel('Mean')
-    plt.ylabel('Standard Deviation')
-    plt.title('SVM Decision Boundaries')
-    plt.legend(title='Labels')
-    plt.show()
-
-    return classifier
-
-
 def kmeans_clustering(data_train, data_test, label_train, label_test):
-    kmeans = KMeans(n_clusters=4)
+    kmeans = KMeans(n_clusters=4, random_state=48)
     kmeans.fit(data_train)
 
-    train_cluster_labels = kmeans.labels_
+    test_clusters = kmeans.predict(data_test)
 
-    clf = LogisticRegression()
-    clf.fit(train_cluster_labels.reshape(-1, 1), label_train)
+    test_accuracy = accuracy_score(label_test, test_clusters)
     
-    test_cluster_labels = kmeans.predict(data_test)
-    predicted_labels = clf.predict(test_cluster_labels.reshape(-1, 1))
-
-    accuracy = accuracy_score(label_test, predicted_labels)
-    print("Accuracy for K Means:", accuracy)
+    print("Accuracy for K Means:", test_accuracy)
 
     return kmeans
 
@@ -226,14 +155,9 @@ def main():
     # Split data into training and test sets
     data_train, data_test, label_train, label_test = data_split(cell_data, labels)
 
-    # Create a svm Classifier
-    # svm_classifier(data_train, data_test, label_train, label_test)
-
     # KMeans Clustering
     kmeans_clustering(data_train, data_test, label_train, label_test)
-    
-    # Visualise SVM decision boundaries
-    #svm_classifier_visualisation(data_train, data_test, label_train, label_test)
+
 
 if __name__ == "__main__":
     main()

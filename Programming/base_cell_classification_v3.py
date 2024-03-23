@@ -12,8 +12,6 @@ from sklearn.metrics import accuracy_score, classification_report
 from scipy.stats import skew, kurtosis
 from skimage.measure import shannon_entropy
 import matplotlib.pyplot as plt
-import seaborn as sns
-
 
 def cell_image_import(input_folder_path):
     """
@@ -27,8 +25,6 @@ def cell_image_import(input_folder_path):
     image_list = []
 
     for filename in os.listdir(input_folder_path):
-        # if filename endswith '.png' and starts with '1' or '2' or '3'
-        # if filename.endswith('.png') and (filename.startswith('1') or filename.startswith('2') or filename.startswith('3')):
         if filename.endswith('.png'):  
             image_list.append(filename)
 
@@ -47,9 +43,6 @@ def discrete_wavelet_transform(input_folder_path, image_list):
     Returns:
         coeffs (array): coefficients array from DWT
     """
-    
-    wavelet = 'db12'
-    n = 2
 
     cell_data = []
 
@@ -57,7 +50,6 @@ def discrete_wavelet_transform(input_folder_path, image_list):
 
     print('STARTING DWT...')
     
-    # For first 5 images in the folder
     for image in image_list:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
@@ -66,54 +58,37 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         
         print('Image Imported:', image)
 
-        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
+        imArrayG = np.float64(imArrayG)
+        imArrayG = imArrayG.flatten()
 
-        cA = coeffs[0]
-        cA = cA.flatten()
+        mean = np.mean(imArrayG)
 
-        mean = np.mean(cA)
-        std = np.std(cA)
-        skewness = skew(cA)
-        kurt = kurtosis(cA)
-        median = np.median(cA)
-        co_range = np.max(cA) - np.min(cA)
-        mean_square = np.mean(cA ** 2)
+        std = np.std(imArrayG)
+
+        skewness = skew(imArrayG)
+
+        kurt = kurtosis(imArrayG)
+
+        median = np.median(imArrayG)
+
+        co_range = np.max(imArrayG) - np.min(imArrayG)
+
+        mean_square = np.mean(imArrayG ** 2)
         rms = np.sqrt(mean_square)
-        entro = shannon_entropy(cA)
+
+        entro = shannon_entropy(imArrayG)
 
         new_row = [mean, std, skewness, kurt, median, co_range, rms, entro]
-
-        # Starts at level n decomposition and ends at level 1
-        for level in range(1,n+1):
-            cD = coeffs[level]
-
-            # Loops through vertical, horizontal and diagonal detail coefficients
-            for i in range(3):
-                details = cD[i]
-                details = cD[i].flatten()
-
-                mean = np.mean(details)
-                std = np.std(details)
-                skewness = skew(details)
-                kurt = kurtosis(details)
-                median = np.median(details)
-                co_range = np.max(details) - np.min(details)
-
-                mean_square = np.mean(details ** 2)
-                rms = np.sqrt(mean_square)
-
-                entro = shannon_entropy(details)
-
-                new_row = new_row + [mean, std, skewness, kurt, median, co_range, rms, entro]
+        # new_row = [mean, std, skewness, kurt]
+        cell_data.append(new_row)
 
         # Append the label to the labels list
         label = image[0]
         label = int(label)
         labels.append(label)
         
-        cell_data.append(new_row)
-        
-    print('SUCCESS: Completed DWT')
+
+    print('SUCCESS: Completed Feature Extraction')
 
     cell_data = np.array(cell_data, dtype=float)
     print('Cell Data:', cell_data.shape)
@@ -133,7 +108,7 @@ def data_split(cell_data, labels):
 
 
 def svm_classifier(data_train, data_test, label_train, label_test):
-    #cCreate a svm Classifier
+    #Create a svm Classifier
     clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
 
     print('SUCCESS: Created SVM Classifier')
@@ -153,63 +128,15 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     return
 
 
-def svm_classifier_visualisation(data_train, data_test, label_train, label_test):
-    # Create a svm Classifier
-    classifier = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
-
-    data_train = data_train[:, :2]
-    data_test = data_test[:, :2]
-    
-    # Train the model using the training sets
-    classifier.fit(data_train, label_train)
-
-    print('SUCCESS: Trained SVM Classifier')
-    
-    label_pred = classifier.predict(data_test)
-
-    # Model Accuracy: how often is the classifier correct?
-    print("Accuracy for 2 Feature Classification:",metrics.accuracy_score(label_test, label_pred))
-
-    print("Creating Grid...")
-    # Generate a grid of points to plot decision boundaries
-    x_min, x_max = data_train[:, 0].min() - 1, data_train[:, 0].max() + 1
-    y_min, y_max = data_train[:, 1].min() - 1, data_train[:, 1].max() + 1
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
-                        np.arange(y_min, y_max, 0.1))
-
-    print("Plotting Decision Boundaries...")
-    # Plot decision boundaries
-    Z = classifier.predict(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-    plt.contourf(xx, yy, Z, alpha=0.4)
-
-    print("Plotting Datapoints...")
-    # Plot data points
-    sns.scatterplot(x=data_train[:, 0], y=data_train[:, 1], hue=label_train, palette="Set1")
-
-    plt.xlabel('Mean')
-    plt.ylabel('Standard Deviation')
-    plt.title('SVM Decision Boundaries')
-    plt.legend(title='Labels')
-    plt.show()
-
-    return classifier
-
-
 def kmeans_clustering(data_train, data_test, label_train, label_test):
-    kmeans = KMeans(n_clusters=4)
+    kmeans = KMeans(n_clusters=4, random_state=44)
     kmeans.fit(data_train)
 
-    train_cluster_labels = kmeans.labels_
+    test_clusters = kmeans.predict(data_test)
 
-    clf = LogisticRegression()
-    clf.fit(train_cluster_labels.reshape(-1, 1), label_train)
+    test_accuracy = accuracy_score(label_test, test_clusters)
     
-    test_cluster_labels = kmeans.predict(data_test)
-    predicted_labels = clf.predict(test_cluster_labels.reshape(-1, 1))
-
-    accuracy = accuracy_score(label_test, predicted_labels)
-    print("Accuracy for K Means:", accuracy)
+    print("Accuracy for K Means:", test_accuracy)
 
     return kmeans
 
@@ -232,8 +159,7 @@ def main():
     # KMeans Clustering
     kmeans_clustering(data_train, data_test, label_train, label_test)
     
-    # Visualise SVM decision boundaries
-    #svm_classifier_visualisation(data_train, data_test, label_train, label_test)
+    
 
 if __name__ == "__main__":
     main()
