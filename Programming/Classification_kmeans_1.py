@@ -8,11 +8,12 @@ from sklearn import svm
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, silhouette_score
 from scipy.stats import skew, kurtosis
 from skimage.measure import shannon_entropy
 import matplotlib.pyplot as plt
 import seaborn as sns
+import csv
 
 
 def cell_image_import(input_folder_path):
@@ -57,7 +58,6 @@ def discrete_wavelet_transform(input_folder_path, image_list):
 
     print('STARTING DWT...')
     
-    # For first 5 images in the folder
     for image in image_list:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
@@ -133,20 +133,43 @@ def data_split(cell_data, labels):
 
 
 def kmeans_clustering(data_train, data_test, label_train, label_test):
-    inertias = []
-    # Save first 10 data points for elbow method
-    elbow_data = data_train[:100]
-    max_clusters = len(elbow_data)
-    for i in range(1, max_clusters):
-        kmeans = KMeans(n_clusters=i)
-        kmeans.fit(elbow_data)
-        inertias.append(kmeans.inertia_)
+    # file_name = "Elbow.csv"
     
-    plt.plot(range(1, max_clusters), inertias, marker = 'o')
-    plt.title('Elbow Method')
-    plt.xlabel('Number of clusters')
-    plt.ylabel('Inertia')
-    plt.show()
+    # inertias = []
+    # # Save first 10 data points for elbow method
+    # elbow_data = data_train
+    # max_clusters = 10
+    # with open(file_name, 'w', newline='') as csvfile:
+    #     csv_writer = csv.writer(csvfile)
+    #     for i in range(1, max_clusters):
+    #         kmeans = KMeans(n_clusters=i)
+    #         kmeans.fit(elbow_data)
+    #         inertias.append(kmeans.inertia_)
+    #         csv_writer.writerow([i, kmeans.inertia_])
+    
+    # plt.plot(range(1, max_clusters), inertias, marker = 'o')
+    # plt.title('Elbow Method')
+    # plt.xlabel('Number of clusters')
+    # plt.ylabel('Inertia')
+    # plt.show()
+
+    # file_name = "Silhouette.csv"
+
+    # silhouette_avg = []
+    # with open(file_name, 'w', newline='') as csvfile:
+    #     csv_writer = csv.writer(csvfile)
+    #     for i in range(2, max_clusters):
+    #         kmeans = KMeans(n_clusters=i)
+    #         kmeans.fit(elbow_data)
+    #         cluster_labels = kmeans.labels_
+    #         silhouette_avg.append(silhouette_score(elbow_data, cluster_labels))
+    #         csv_writer.writerow([i, silhouette_score(elbow_data, cluster_labels)])
+        
+    # plt.plot(range(2, max_clusters), silhouette_avg, marker = 'o')
+    # plt.xlabel('Number of clusters')
+    # plt.ylabel('Silhouette Score') 
+    # plt.title('Silhouette Method')
+    # plt.show()
 
     kmeans = KMeans(n_clusters=4)
     kmeans.fit(data_train)
@@ -180,6 +203,7 @@ def main():
     # KMeans Clustering
     kmeans_clustering(data_train, data_test, label_train, label_test)
 
+    
 
 if __name__ == "__main__":
     main()
