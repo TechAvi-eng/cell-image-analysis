@@ -108,7 +108,7 @@ def data_split(cell_data, labels):
 
 
 def svm_classifier(data_train, data_test, label_train, label_test):
-    #cCreate a svm Classifier
+    #Create a svm Classifier
     clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel
 
     print('SUCCESS: Created SVM Classifier')
@@ -129,7 +129,6 @@ def svm_classifier(data_train, data_test, label_train, label_test):
 
 
 def kmeans_clustering(data_train, data_test, label_train, label_test):
-
     kmeans = KMeans(n_clusters=4)
     kmeans.fit(data_train)
 
