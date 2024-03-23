@@ -131,7 +131,7 @@ def data_split(cell_data, labels):
 
 
 def kmeans_clustering(data_train, data_test, label_train, label_test):
-    kmeans = KMeans(n_clusters=4, random_state=48)
+    kmeans = KMeans(n_clusters=4, random_state=22 )
     kmeans.fit(data_train)
 
     test_clusters = kmeans.predict(data_test)

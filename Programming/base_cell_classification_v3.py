@@ -129,7 +129,7 @@ def svm_classifier(data_train, data_test, label_train, label_test):
 
 
 def kmeans_clustering(data_train, data_test, label_train, label_test):
-    kmeans = KMeans(n_clusters=4, random_state=44)
+    kmeans = KMeans(n_clusters=4, random_state=42)
     kmeans.fit(data_train)
 
     test_clusters = kmeans.predict(data_test)

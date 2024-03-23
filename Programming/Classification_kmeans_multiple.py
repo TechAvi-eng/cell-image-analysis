@@ -46,7 +46,7 @@ def discrete_wavelet_transform(input_folder_path, image_list, decomposition_leve
         coeffs (array): coefficients array from DWT
     """
     
-    wavelet = 'coif2'
+    wavelet = 'coif12'
     n = decomposition_level
 
     cell_data = []
