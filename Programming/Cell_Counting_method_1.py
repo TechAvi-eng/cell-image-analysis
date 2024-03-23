@@ -109,7 +109,6 @@ def dynamic_range(imArrayG):
     # Display the adjusted image
     display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
 
-
     image_info('Adjusted_Image', adjusted_image)
     print("Dynamic Range After Processing: ", adjusted_image.max()-adjusted_image.min())
 
@@ -319,9 +318,9 @@ def cell_identification(binary_image, imArrayG):
         filtered_contours (list): list of filtered contours
     """
     # Morphological operations
-    kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
-    kernel_dilation = np.ones((16, 16), np.uint8)
-    kernel_close = np.ones((25, 25), np.uint8)
+    kernel_open = np.ones((5, 5), np.uint8) # kernel with all ones
+    kernel_dilation = np.ones((2, 2), np.uint8)
+    kernel_close = np.ones((5, 5), np.uint8)
 
     morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
@@ -341,7 +340,7 @@ def cell_identification(binary_image, imArrayG):
     display_image('Contours on Grayscale Image', result)
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 200
+    min_contour_area = 100
 
     # Filter contours based on area
     filtered_contours = []
@@ -370,7 +369,7 @@ def cell_identification(binary_image, imArrayG):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = '1_00001'
+    image_name = '3_00010_002_3_1'
 
     # Import image
     imArray = image_import(folder_path, image_name)
@@ -381,8 +380,8 @@ def main():
     # Adjust brightness and contrast to improve the dynamic range
     adjusted_image = dynamic_range(imArrayG)
 
-    n = 1
-    wavelet = 'coif17'
+    n = 3
+    wavelet = 'coif12'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)
@@ -391,16 +390,16 @@ def main():
     # coeffs_map(coeffs)
 
     # Reconstruct images with only approximation and detail coefficients respectively
-    # prepared_image = reconstrucuted_images(coeffs, n, wavelet)
+    prepared_image = reconstrucuted_images(coeffs, n, wavelet)
 
     # Evaluate the performance before and after DWT applied
     # DWT_performance(imArrayG)
 
     # Binary thresholding
-    # binary_image_simple = binary_thresholding(prepared_image)
+    binary_image_simple = binary_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
-    # result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
+    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
     
 if __name__ == "__main__":
     main()
