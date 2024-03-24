@@ -326,7 +326,7 @@ def cell_identification(binary_image, imArrayG):
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
-    # morphed = binary_image
+    morphed = binary_image
     display_image('Morphed Image', morphed)
     
     # Contour detection
@@ -369,7 +369,7 @@ def cell_identification(binary_image, imArrayG):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = '4_00014'
+    image_name = '20mag'
 
     # Import image
     imArray = image_import(folder_path, image_name)
