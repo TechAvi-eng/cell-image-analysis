@@ -35,12 +35,12 @@ def image_info(image_name, imArray):
     print(f'Maximum: {imArray.max()}')
 
     # Display the histogram for number of pixels against pixel intensity, include the image_name
-    plt.hist(imArray.flatten(), bins=100) #, range=(0, 255)
-    plt.title(f'Histogram of pixel intensity for {image_name}')
-    plt.xlabel('Pixel intensity')
-    plt.ylabel('Number of pixels')
-    plt.tight_layout()
-    plt.show()
+    # plt.hist(imArray.flatten(), bins=100) #, range=(0, 255)
+    # plt.title(f'Histogram of pixel intensity for {image_name}')
+    # plt.xlabel('Pixel intensity')
+    # plt.ylabel('Number of pixels')
+    # plt.tight_layout()
+    # plt.show()
     
 
 def image_import(folder_path, image_name):
@@ -79,7 +79,7 @@ def gray_conversion(imArray):
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
-    image_info('Gray_8_bit_Image', imArrayG)
+    # image_info('Gray_8_bit_Image', imArrayG)
     print("Dynamic Range Before Processing: ", imArrayG.max()-imArrayG.min())
 
     return imArrayG
@@ -107,9 +107,9 @@ def dynamic_range(imArrayG):
     adjusted_image = np.uint8(adjusted_image)
 
     # Display the adjusted image
-    display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
+    # display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
 
-    image_info('Adjusted_Image', adjusted_image)
+    # image_info('Adjusted_Image', adjusted_image)
     print("Dynamic Range After Processing: ", adjusted_image.max()-adjusted_image.min())
 
     return adjusted_image
@@ -161,9 +161,9 @@ def reconstrucuted_images(coeffs, n, wavelet):
     reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet) # reconstruct image using inverse DWT
     reconstructed_image_A = np.uint8(reconstructed_image_A) # convert to 8-bit integer image
 
-    display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
+    # display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
-    image_info('Approx_Coefficients_Image', reconstructed_image_A)
+    # image_info('Approx_Coefficients_Image', reconstructed_image_A)
     
 
     # SETTING APPROXIMATION COEFFICIENTS TO ZERO
@@ -174,7 +174,7 @@ def reconstrucuted_images(coeffs, n, wavelet):
     reconstructed_image_D = pywt.waverec2(tuple(coeffs_D), wavelet)
     reconstructed_image_D = np.uint8(reconstructed_image_D)
 
-    display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D)
+    # display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D)
 
     return reconstructed_image_A
 
@@ -302,7 +302,7 @@ def binary_thresholding(prepared_image):
     print('Simple Threshold Value: ' + str(threshold))
 
     # Display thresholded image
-    display_image('Binary Thresholded Image', thresh)
+    # display_image('Binary Thresholded Image', thresh)
 
     return thresh
 
@@ -318,16 +318,16 @@ def cell_identification(binary_image, imArrayG, image_name):
         filtered_contours (list): list of filtered contours
     """
     # Morphological operations
-    kernel_open = np.ones((5, 5), np.uint8) # kernel with all ones
-    kernel_dilation = np.ones((2, 2), np.uint8)
-    kernel_close = np.ones((5, 5), np.uint8)
+    kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
+    kernel_dilation = np.ones((18, 18), np.uint8)
+    kernel_close = np.ones((25, 25), np.uint8)
 
     morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
-    morphed = binary_image
-    display_image('Morphed Image', morphed)
+    # morphed = binary_image
+    # display_image('Morphed Image', morphed)
     
     # Contour detection
     contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL retrieves only the extreme outer contours, cv2.CHAIN_APPROX_SIMPLE compresses the contour
@@ -340,7 +340,7 @@ def cell_identification(binary_image, imArrayG, image_name):
     display_image('Contours on Grayscale Image', result)
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 100
+    min_contour_area = 4500
 
     # Filter contours based on area
     filtered_contours = []
@@ -374,7 +374,7 @@ def cell_identification(binary_image, imArrayG, image_name):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = '20mag'
+    image_name = '4_00001'
 
     # Import image
     imArray = image_import(folder_path, image_name)
@@ -385,7 +385,7 @@ def main():
     # Adjust brightness and contrast to improve the dynamic range
     adjusted_image = dynamic_range(imArrayG)
 
-    n = 3
+    n = 4
     wavelet = 'coif12'
     
     # Complete DWT
