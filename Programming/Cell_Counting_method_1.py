@@ -318,9 +318,9 @@ def cell_identification(binary_image, imArrayG):
         filtered_contours (list): list of filtered contours
     """
     # Morphological operations
-    kernel_open = np.ones((5, 5), np.uint8) # kernel with all ones
-    kernel_dilation = np.ones((2, 2), np.uint8)
-    kernel_close = np.ones((5, 5), np.uint8)
+    kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
+    kernel_dilation = np.ones((16, 16), np.uint8)
+    kernel_close = np.ones((25, 25), np.uint8)
 
     morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
@@ -340,7 +340,7 @@ def cell_identification(binary_image, imArrayG):
     display_image('Contours on Grayscale Image', result)
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 100
+    min_contour_area = 3000
 
     # Filter contours based on area
     filtered_contours = []
@@ -369,7 +369,7 @@ def cell_identification(binary_image, imArrayG):
 
 def main():
     folder_path = 'Programming/raw_images/'
-    image_name = '3_00010_002_3_1'
+    image_name = '4_00014'
 
     # Import image
     imArray = image_import(folder_path, image_name)
