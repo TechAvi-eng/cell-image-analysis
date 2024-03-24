@@ -307,7 +307,7 @@ def binary_thresholding(prepared_image):
     return thresh
 
 
-def cell_identification(binary_image, imArrayG):
+def cell_identification(binary_image, imArrayG, image_name):
     """
     Morphological operations and contour detection (cell identification)
     Parameters:
@@ -318,9 +318,9 @@ def cell_identification(binary_image, imArrayG):
         filtered_contours (list): list of filtered contours
     """
     # Morphological operations
-    kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
-    kernel_dilation = np.ones((16, 16), np.uint8)
-    kernel_close = np.ones((25, 25), np.uint8)
+    kernel_open = np.ones((5, 5), np.uint8) # kernel with all ones
+    kernel_dilation = np.ones((2, 2), np.uint8)
+    kernel_close = np.ones((5, 5), np.uint8)
 
     morphed = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel_open) # Removes small white regions (noise in background)
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
@@ -340,7 +340,7 @@ def cell_identification(binary_image, imArrayG):
     display_image('Contours on Grayscale Image', result)
 
     # Minimum contour area threshold - removes small contours
-    min_contour_area = 3000
+    min_contour_area = 100
 
     # Filter contours based on area
     filtered_contours = []
@@ -355,14 +355,19 @@ def cell_identification(binary_image, imArrayG):
     # Draw contours and number them
     for i in range(len(filtered_contours)):
         cv2.drawContours(result_filtered, filtered_contours, i, (0, 255, 0), 2)
-        cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)    
+        # cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)    
 
         # Output the cells (contours) area
-        print('Cell ' + str(i+1) + ' area = ' + str(cv2.contourArea(filtered_contours[i])))
+        # print('Cell ' + str(i+1) + ' area = ' + str(cv2.contourArea(filtered_contours[i])))
 
     print('Number of Cells Found: ' + str(len(filtered_contours)))
 
     display_image('Filtered Contours on Grayscale Image', result_filtered)
+
+    # Save image
+    folder_path = 'Programming/processed_images/'
+    image_path = os.path.join(folder_path, image_name) + '_Processed.png'
+    cv2.imwrite(image_path, result_filtered)
 
     return result_filtered, filtered_contours
 
@@ -399,7 +404,7 @@ def main():
     binary_image_simple = binary_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
-    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
+    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG, image_name)
     
 if __name__ == "__main__":
     main()
