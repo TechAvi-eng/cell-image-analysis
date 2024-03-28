@@ -28,9 +28,7 @@ def cell_image_import(input_folder_path):
     image_list = []
 
     for filename in os.listdir(input_folder_path):
-        # if filename endswith '.png' and starts with '1' or '2' or '3'
-        # if filename.endswith('.png') and (filename.startswith('1') or filename.startswith('2') or filename.startswith('3')):
-        if filename.endswith('.png'):  
+        if filename.endswith('.png') and (filename.startswith('1') or filename.startswith('2') or filename.startswith('3')):
             image_list.append(filename)
 
     print('SUCCESS: Written list of images')
@@ -49,7 +47,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
         coeffs (array): coefficients array from DWT
     """
     
-    wavelet = 'db2'
+    wavelet = 'db12'
     n = 2
 
     cell_data = []
@@ -171,7 +169,7 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
     # plt.title('Silhouette Method')
     # plt.show()
 
-    kmeans = KMeans(n_clusters=4)
+    kmeans = KMeans(n_clusters=3)
     kmeans.fit(data_train)
 
     train_cluster_labels = kmeans.labels_

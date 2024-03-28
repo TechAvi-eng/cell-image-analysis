@@ -161,7 +161,7 @@ def reconstrucuted_images(coeffs, n, wavelet):
     reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet) # reconstruct image using inverse DWT
     reconstructed_image_A = np.uint8(reconstructed_image_A) # convert to 8-bit integer image
 
-    # display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
+    display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
     # image_info('Approx_Coefficients_Image', reconstructed_image_A)
     
@@ -174,7 +174,7 @@ def reconstrucuted_images(coeffs, n, wavelet):
     reconstructed_image_D = pywt.waverec2(tuple(coeffs_D), wavelet)
     reconstructed_image_D = np.uint8(reconstructed_image_D)
 
-    # display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D)
+    display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D)
 
     return reconstructed_image_A
 
@@ -386,7 +386,7 @@ def main():
     adjusted_image = dynamic_range(imArrayG)
 
     n = 4
-    wavelet = 'coif12'
+    wavelet = 'db12'
     
     # Complete DWT
     coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)

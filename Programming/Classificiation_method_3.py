@@ -13,6 +13,8 @@ from scipy.stats import skew, kurtosis
 from skimage.measure import shannon_entropy
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.font_manager import FontProperties
+
 
 
 def cell_image_import(input_folder_path):
@@ -187,10 +189,17 @@ def svm_classifier_visualisation(data_train, data_test, label_train, label_test)
     # Plot data points
     sns.scatterplot(x=data_train[:, 0], y=data_train[:, 1], hue=label_train, palette="Set1")
 
-    plt.xlabel('Mean')
-    plt.ylabel('Standard Deviation')
-    plt.title('SVM Decision Boundaries')
-    plt.legend(title='Labels')
+    plt.xlabel('Mean', fontsize=11, fontname='Times New Roman')
+    plt.ylabel('Standard Deviation', fontsize=11, fontname='Times New Roman')
+    plt.title('SVM Decision Boundaries', fontsize=12, fontname='Times New Roman')
+    plt.xticks(fontsize=10, fontname='Times New Roman')
+    plt.yticks(fontsize=10, fontname='Times New Roman')
+    legend_font = FontProperties(family='Times New Roman', size=11)
+    legend = plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', labels=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"], prop=legend_font)
+    legend.set_title("Maturity Classification", prop={'size': 11, 'family': 'Times New Roman'})
+    plt.gcf().set_size_inches(8.38/2.54, 6/2.54)
+    plt.gcf().set_dpi(600)
+    plt.tight_layout()
     plt.show()
 
     return classifier
@@ -215,7 +224,7 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
 
 
 def main():
-    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Subwindows'
+    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
     
     # Import image names
     image_list = cell_image_import(input_folder_path)
@@ -230,10 +239,10 @@ def main():
     # svm_classifier(data_train, data_test, label_train, label_test)
 
     # KMeans Clustering
-    kmeans_clustering(data_train, data_test, label_train, label_test)
+    # kmeans_clustering(data_train, data_test, label_train, label_test)
     
     # Visualise SVM decision boundaries
-    #svm_classifier_visualisation(data_train, data_test, label_train, label_test)
+    svm_classifier_visualisation(data_train, data_test, label_train, label_test)
 
 if __name__ == "__main__":
     main()
