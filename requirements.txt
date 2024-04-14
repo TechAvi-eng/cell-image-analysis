@@ -8,7 +8,6 @@ cycler==0.12.1
 debugpy==1.8.0
 decorator==5.1.1
 executing==2.0.1
-Flask==3.0.1
 fonttools==4.46.0
 imageio==2.33.1
 ipykernel==6.27.1
@@ -53,4 +52,3 @@ tornado==6.4
 traitlets==5.14.0
 tzdata==2023.3
 wcwidth==0.2.12
-Werkzeug==3.0.1

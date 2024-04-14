@@ -1,1 +1,1 @@
-# Cell Image Analysis Individual Project
+# Cell Image Analysis Pipeline
