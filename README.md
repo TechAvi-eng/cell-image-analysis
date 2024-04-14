@@ -35,18 +35,18 @@ The pipeline has multiple features and functionality, highlighted below.
 
 ## Setup and Configuration Instructions
 <li>Download and open the full repository within an IDE</li>
-<li>Copy your full dataset of interest into a folder named `Dataset` (either the BioMediTech RPE dataset cited above or alternate cell data)<li>
+<li>Copy your full dataset of interest into a folder named 'Dataset' (either the BioMediTech RPE dataset cited above or alternate cell data)<li>
   <ul>
       <li>Note: A folder named `Dataset` is included within the repository with some example images extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification</li>
   </ul>
-<li>Install the depdencies by typing and entering `pip install -r requirements.txt` into the command line</li>
-<li>Run any of the `Cell_Counting.py`, `'Cell_Classification.py` or `DWT_Performance.py` files (any overview of each file is provided below</li>
-<li>For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the `main` function, which will avoid running the full pipelines functionality</li>
+<li>Install the depdencies by typing and entering 'pip install -r requirements.txt' into the command line</li>
+<li>Run any of the 'Cell_Counting.py', 'Cell_Classification.py' or 'DWT_Performance.py' files (any overview of each file is provided below</li>
+<li>For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the 'main' function, which will avoid running the full pipelines functionality</li>
 <li>Docstring comments are provided under each function describing its purpose</li>
 
 ## Python Files
 Below a list is provided for the different functionality provided within each Python file contained within the repository, to help select the most appropriate file for your application.
-<li>`Cell_Counting.py`</li>
+<li>Cell_Counting.py</li>
   <ul>
       <li>Dynamic Range adjustment algorithm</li>
       <li>DWT based multiresolution analysis for denoising</li>
@@ -54,7 +54,7 @@ Below a list is provided for the different functionality provided within each Py
       <li>Morphological operation application</li>
       <li>Contour identification</li>
   </ul>
-<li>`Cell_Classification.py`</li>
+<li>Cell_Classification.py</li>
   <ul>
       <li>DWT based multiresolution analysis for generating DWT decomposition coefficients</li>
       <li>Extracting statistical features from either raw pixel values or DWT decomposition coefficients</li>
@@ -62,4 +62,7 @@ Below a list is provided for the different functionality provided within each Py
       <li>SVM decision boundary visualistation</li>
       <li>K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)</li>
       <li>Elbow and Silhouette methods for optimal number of clusters determination</li>
-  </ul> 
+    </ul>
+  <li>DWT_Performance.py</li>
+    <ul>
+      <li>Structural Similarity Index Measure (SSIM), Peak Signal-to-Noise Ratio (PSNR) and computational time calculation for different DWT functiona and vanishing moments</li>
