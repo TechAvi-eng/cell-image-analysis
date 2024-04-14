@@ -65,4 +65,4 @@ Below a list is provided for the different functionality provided within each Py
     </ul>
   <li>DWT_Performance.py</li>
     <ul>
-      <li>Structural Similarity Index Measure (SSIM), Peak Signal-to-Noise Ratio (PSNR) and computational time calculation for different DWT functiona and vanishing moments</li>
+      <li>Structural Similarity Index Measure (SSIM), Peak Signal-to-Noise Ratio (PSNR) and computational time calculation for different DWT functions and vanishing moments</li>
