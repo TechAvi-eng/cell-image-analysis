@@ -2,4 +2,64 @@
 ## Overview
 This repository contains the pipeline developed for the UCL Mechanical Engineering Third Year Project titled "Automated Processing of Cell Images Using the Discrete Wavelet Transform and Machine Learning".
 
+The pipeline has been developed and tested using Retinal pigment epithelium (RPE) cell images, and the BioMediTech RPE published dataset has been specifically used. Credit is given to the following paper for the RPE cell dataset: L. Nanni, M. Paci, F. L. C. Santos, H. Skottman, K. Juuti-Uusitalo, J. Hyttinen, Texture descriptors ensembles enable image-based classification of maturation of human stem cell-derived retinal pigmented epithelium, Plos One 2016.
+
+This dataset is publicly available at: https://figshare.com/articles/dataset/BioMediTech_RPE_dataset/2070109
+
 The pipeline has multiple features and functionality, highlighted below.
+<ul>
+  <li>Pre-Processing</li>
+      <ul>
+        <li>Grayscale and 8-bit image conversion</li>
+        <li>Dynamic Range adjustment algorithm</li>
+      </ul>
+  <li>Mutliresolution Analysis</li>
+      <ul>
+        <li>Performance evaluation of different DWT functions</li>
+        <li>Multi-level DWT application for denoising (removal of contaminant and noise frequencies)</li>
+        <li>Multi-level DWT application for generating decomposition coefficients for classification</li>
+      </ul>
+  <li>Cell Counting</li>
+      <ul>
+        <li>Binarisation thresholding of denoised reconstruced imaged</li>
+        <li>Application of morphological operations to improve binarised map</li>
+        <li>Countour identification for mapping of enclosed cells</li>
+      </ul>
+  <li>Cell Classification</li>
+      <ul>
+        <li>Application of Support Vector Machine (SVM) and k-means clustering algoriths</li>
+        <li>Baseline classification extracting statistical features from raw pixel values</li>
+        <li>Proposed classification extracting statistical features from DWT decomposition coefficients </li>
+        <li>Elbow and Silhouette methods for optimal cluster determination</li>
+      </ul>
+
+## Setup and Configuration Instructions
+<li>Download and open the full repository within an IDE</li>
+<li>Copy your full dataset of interest into a folder named `Dataset` (either the BioMediTech RPE dataset cited above or alternate cell data)<li>
+  <ul>
+      <li>Note: A folder named `Dataset` is included within the repository with some example images extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification</li>
+  </ul>
+<li>Install the depdencies by typing and entering `pip install -r requirements.txt` into the command line</li>
+<li>Run any of the `Cell_Counting.py`, `'Cell_Classification.py` or `DWT_Performance.py` files (any overview of each file is provided below</li>
+<li>For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the `main` function, which will avoid running the full pipelines functionality</li>
+<li>Docstring comments are provided under each function describing its purpose</li>
+
+## Python Files
+Below a list is provided for the different functionality provided within each Python file contained within the repository, to help select the most appropriate file for your application.
+<li>`Cell_Counting.py`</li>
+  <ul>
+      <li>Dynamic Range adjustment algorithm</li>
+      <li>DWT based multiresolution analysis for denoising</li>
+      <li>Binarisation thresholding</li>
+      <li>Morphological operation application</li>
+      <li>Contour identification</li>
+  </ul>
+<li>`Cell_Classification.py`</li>
+  <ul>
+      <li>DWT based multiresolution analysis for generating DWT decomposition coefficients</li>
+      <li>Extracting statistical features from either raw pixel values or DWT decomposition coefficients</li>
+      <li>SVM cell classification (supervised ML, therefore, labelled data required)</li>
+      <li>SVM decision boundary visualistation</li>
+      <li>K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)</li>
+      <li>Elbow and Silhouette methods for optimal number of clusters determination</li>
+  </ul> 
