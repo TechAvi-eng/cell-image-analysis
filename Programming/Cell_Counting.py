@@ -11,9 +11,13 @@ from skimage.metrics import (peak_signal_noise_ratio, structural_similarity)
 import time
 
 
+# This program is designed to count the number of cells in an image using the Discrete Wavelet Transform (DWT) for image denoising
+# Detailed setup instructions can be found in the README.md file
+# Note: Appropriate images must be placed in the Dataset folder for the program to run correctly
+
 def display_image(image_name, image_array):
     """
-    Display image
+    Function to display the image
     Parameters:
         image_name (str): image name
         image_array (array): image array
@@ -25,8 +29,9 @@ def display_image(image_name, image_array):
 
 def image_info(image_name, imArray):
     """
-    Display image information
+    Function to display the image information
     Parameters:
+        image_name (str): image name
         imArray (array): image array
     """
     # Display the colour information of the image
@@ -36,17 +41,15 @@ def image_info(image_name, imArray):
     print(f'Maximum: {imArray.max()}')
 
     # Display the histogram for number of pixels against pixel intensity, include the image_name
-    plt.hist(imArray.flatten(), bins=100) #, range=(0, 255)
-    # Make the title and axis labels font times new roman
+    plt.hist(imArray.flatten(), bins=100)
+    
+    # Histogram Formatting
     plt.title(f'Histogram of Pixel Intensity\n {image_name}', fontname='Times New Roman', fontsize=12)
     plt.xlabel('Pixel intensity', fontname='Times New Roman', fontsize=11)
     plt.ylabel('Number of pixels', fontname='Times New Roman', fontsize=11)
-    # Make axis labels font times new roman
     plt.xticks(fontname='Times New Roman', fontsize=10)
     plt.yticks(fontname='Times New Roman', fontsize=10)
-    # Make the figure size 8.38 cm in width
     plt.gcf().set_size_inches(8.38/2.54, 6/2.54)
-    # Make the figure 600 dpi
     plt.gcf().set_dpi(600)
     plt.tight_layout()
     plt.show()
@@ -54,7 +57,7 @@ def image_info(image_name, imArray):
 
 def image_import(folder_path, image_name):
     """
-    Import image and return image array
+    Imports image and returns image array
     Parameters:
         folder_path (str): folder path of image
         image_name (str): image name
@@ -62,14 +65,14 @@ def image_import(folder_path, image_name):
         imArray (array): image array
     """
 
-    image_path = os.path.join(folder_path, image_name) + '.png' # image path 
-    imArray = cv2.imread(image_path)
+    image_path = os.path.join(folder_path, image_name) + '.png' # Image path
+    imArray = cv2.imread(image_path) # Read image
     
-    print(f'Bit depth: {imArray.dtype}')
+    print(f'Bit depth: {imArray.dtype}') # Display bit depth of image
 
-    display_image('Original Image', imArray)
+    display_image('Original Image', imArray) # Display the original image
 
-    #image_info('Original_Image', imArray)
+    image_info('Original Image', imArray) # Display the image information
 
     return imArray
 
@@ -78,17 +81,18 @@ def gray_conversion(imArray):
     """
     Convert image to grayscale and convert to 8-bit integer
     Parameters:
-        imArray (array): image array
+        imArray (array): original image array
     Returns:
         imArrayG (array): grayscale 8-bit image array
     """
-    imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
+    imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY) # Conversion to grayscale
 
     imArrayG = np.uint8(imArrayG) # Conversion to 8-bit integer
 
     display_image('Gray 8-bit Integer Image', imArrayG)
     
     image_info('Before Pre-Processing', imArrayG)
+
     print("Dynamic Range Before Processing: ", imArrayG.max()-imArrayG.min())
 
     return imArrayG
@@ -96,13 +100,12 @@ def gray_conversion(imArray):
 
 def dynamic_range(imArrayG):
     """
-    Adjust brightness and contrast
+    Algorithm to adjust the brightness and contrast of the image
     Parameters:
-        imArrayG (array): grayscale 8-bit image array
+        imArrayG (array): grayscale 8-bit image array pre adjustment
     Returns:
-        adjusted_image (array): grayscale 8-bit image array
+        adjusted_image (array): grayscale 8-bit image array post adjustment
     """
-    print('DYNAMIC RANGE ADJUSTMENT:')
     minimum_value = np.min(imArrayG)
     maximum_value = np.max(imArrayG)
 
@@ -115,10 +118,10 @@ def dynamic_range(imArrayG):
     adjusted_image = np.clip(img_contrast, 0, 255)
     adjusted_image = np.uint8(adjusted_image)
 
-    # Display the adjusted image
     display_image('Adjusted Image (Brightness and Contrast)', adjusted_image)
 
     image_info('After Pre-Processing', adjusted_image)
+
     print("Dynamic Range After Processing: ", adjusted_image.max()-adjusted_image.min())
 
     return adjusted_image
@@ -126,26 +129,26 @@ def dynamic_range(imArrayG):
 
 def discrete_wavelet_transform(imArrayG, n, wavelet):
     """
-    Complete DWT
+    Complete DWT based multiresolution for denoising
     Parameters:
         imArrayG (array): grayscale 8-bit image array
-        n (int): number of levels
-        wavelet (str): wavelet type
+        n (int): number of levels of decomposition
+        wavelet (str): wavelet function
     Returns:
         coeffs (array): coefficients array from DWT
     """
-    coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # complete DWT
+    coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
 
     return coeffs
 
 
 def coeffs_map(coeffs):
     """
-    Produce coefficient map
+    Produce coefficient map for visualisation only
     Parameters:
         coeffs (array): coefficients array
     """
-    coeffs[0] = coeffs[0]/np.abs(coeffs[0]).max() # normalise the approximation coefficients (unsure why this is required normalising but the detail coefficients do not)
+    coeffs[0] = coeffs[0]/np.abs(coeffs[0]).max() # normalise the approximation coefficients
 
     arr, coeff_slices = pywt.coeffs_to_array(coeffs)
 
@@ -154,34 +157,36 @@ def coeffs_map(coeffs):
 
 def reconstrucuted_images(coeffs, n, wavelet):
     """
-    Reconstruct images using only approximation and detail coefficients
+    Reconstruct images using only approximation and detail coefficients, producing two images
     Parameters:
-        imArrayG (array): grayscale 8-bit image array
-        n (int): number of levels
-        wavelet (str): wavelet type
+        imArrayG (array): grayscale 8-bit image array from DWT
+        n (int): number of levels of decomposition
+        wavelet (str): wavelet function
     Returns:
         reconstructed_image_A (array): reconstructed image using only approximation coefficients
     """
-    # SETTING DETAIL COEFFICIENTS TO ZERO
+    # Setting Detail Coefficients to Zero
     coeffs_A = list(coeffs)
     for i in range(1, n+1):
         coeffs_A[i] = tuple(np.zeros_like(element) for element in coeffs[i]) # set detail coefficients to zero
 
     reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet) # reconstruct image using inverse DWT
+
     reconstructed_image_A = np.uint8(reconstructed_image_A) # convert to 8-bit integer image
 
     display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
 
-    image_info('Approx_Coefficients_Image', reconstructed_image_A)
+    image_info('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
     
 
-    # SETTING APPROXIMATION COEFFICIENTS TO ZERO
+    # Setting Detail Coefficients to Zero (for Visualisation only)
     coeffs_D = list(coeffs)
     for i in range(0, 1):
-        coeffs_D[i] = tuple(np.zeros_like(element) for element in coeffs[i])
+        coeffs_D[i] = tuple(np.zeros_like(element) for element in coeffs[i]) # set approximation coefficients to zero
 
-    reconstructed_image_D = pywt.waverec2(tuple(coeffs_D), wavelet)
-    reconstructed_image_D = np.uint8(reconstructed_image_D)
+    reconstructed_image_D = pywt.waverec2(tuple(coeffs_D), wavelet) # reconstruct image using inverse DWT
+
+    reconstructed_image_D = np.uint8(reconstructed_image_D) # convert to 8-bit integer image
 
     display_image('Detail Coefficients Only Reconstructed Image', reconstructed_image_D)
 
@@ -190,14 +195,14 @@ def reconstrucuted_images(coeffs, n, wavelet):
 
 def DWT_performance(imArrayG):
     """
-    Evaluate the performance before and after DWT applied, using PSNR and SSIM performance metrics
+    Evaluate the performance before and after DWT applied, using PSNR, SSIM and computing time performance metrics
     Parameters:
         imArrayG (array): grayscale 8-bit image array
     """
 
-    wavelet_list = pywt.wavelist(kind='discrete')
+    wavelet_list = pywt.wavelist(kind='discrete') # List of wavelet functions
     
-    # Create empty lists to store PSNR and SSIM values, with columns representing the wavelet function used and rows representing the number of levels used
+    # Empty lists to store PSNR, SSIM values, and computing time results
     psnr_list = np.zeros((len(wavelet_list), 3))
     ssim_list = np.zeros((len(wavelet_list), 3))
     comp_time_list = np.zeros((len(wavelet_list), 3))
@@ -212,8 +217,9 @@ def DWT_performance(imArrayG):
         for i in wavelet_list:
             wavelet = i
 
-            start = time.time()
-            coeffs = pywt.wavedec2(imArrayG, wavelet, level=n)
+            start = time.time() # Start the timer for computation time
+
+            coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # Complete DWT
 
             coeffs_A = list(coeffs)
 
@@ -221,13 +227,14 @@ def DWT_performance(imArrayG):
                 coeffs_A[y] = tuple(np.zeros_like(element) for element in coeffs[y])
 
             reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
+
             reconstructed_image_A = np.uint8(reconstructed_image_A)
 
-            end = time.time()
-            comp_time = end - start
+            end = time.time() # End the timer for computation time
+            comp_time = end - start # Calculate the computation time
 
-            psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A)
-            ssim_A = structural_similarity(imArrayG, reconstructed_image_A)
+            psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A) # Calculate PSNR
+            ssim_A = structural_similarity(imArrayG, reconstructed_image_A) # Calculate SSIM
 
             if psnr_A > psnr_highest:
                 psnr_highest = psnr_A
@@ -237,14 +244,14 @@ def DWT_performance(imArrayG):
                 ssim_highest = ssim_A
                 ssim_highest_name = wavelet + ' at ' + str(n) + ' levels'
 
-            # Store PSNR and SSIM values in the list at column = wavelet and row = n
+            # Store PSNR, SSIM and computational time values in the lists
             psnr_list[wavelet_list.index(wavelet)][n-3] = psnr_A
             ssim_list[wavelet_list.index(wavelet)][n-3] = ssim_A
             comp_time_list[wavelet_list.index(wavelet)][n-3] = comp_time
 
             print("Completed " + str(wavelet) + " at " + str(n) + " levels")
 
-    # Output the wavelet function gives the highest PSNR and SSIM
+    # Output the wavelet function that gives the highest PSNR and SSIM
     print("Highest PSNR: " + psnr_highest_name + " with PSNR of " + str(psnr_highest))
     print("Highest SSIM: " + ssim_highest_name + " with SSIM of " + str(ssim_highest))
 
@@ -282,7 +289,6 @@ def DWT_performance(imArrayG):
 
     # Print the PSNR values for each wavelet function
     print("PSNR Values for each Wavelet Function")
-    # Convert the PSNR list to a string from a np array
     for i in range(len(wavelet_list)):
         print(str(psnr_list[i]))
 
@@ -301,16 +307,17 @@ def binary_thresholding(prepared_image):
     """
     Binary thresholding using simple thresholding method
     Parameters:
-        prepared_image (array): image array
+        prepared_image (array): image array post inverse DWT reconstruction
     Returns:
         thresh (array): thresholded image array
     """
-    threshold = prepared_image.mean() - 1/2 * prepared_image.std() - 2 # threshold value
-    _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV) # Pixel value > threshold set to 255, then inverted as cv2.findContours() requires white objects on black background
+    threshold = prepared_image.mean() - 1/2 * prepared_image.std() - 2 # Calculate threshold value
+    
+    # If pixel value > threshold the  set to 0. Inverted as cv2.findContours() requires white objects on black background
+    _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV)
 
     print('Simple Threshold Value: ' + str(threshold))
 
-    # Display thresholded image
     display_image('Binary Thresholded Image', thresh)
 
     return thresh
@@ -319,15 +326,16 @@ def binary_thresholding(prepared_image):
 def cell_identification(binary_image, imArrayG):
     """
     Morphological operations and contour detection (cell identification)
+    Note: The morphological operations must be adjusted based on the cell size
     Parameters:
         binary_image (array): binary thresholded image array
         imArrayG (array): grayscale 8-bit image array
     Returns:
         result_filtered (array): image array with filtered contours
-        filtered_contours (list): list of filtered contours
+        filtered_contours (list): list of filtered contours (can be used for future analysis)
     """
-    # Morphological operations
-    kernel_open = np.ones((25, 25), np.uint8) # kernel with all ones
+    # Morphological kernel sizes (with all ones)
+    kernel_open = np.ones((25, 25), np.uint8)
     kernel_dilation = np.ones((25, 25), np.uint8)
     kernel_close = np.ones((25, 25), np.uint8)
 
@@ -335,52 +343,38 @@ def cell_identification(binary_image, imArrayG):
     morphed = cv2.dilate(morphed, kernel_dilation, iterations = 1) # Increases white regions (joins broken cells)
     morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel_close) # Removes small black holes (noise in cells)
     
-    # morphed = binary_image
     display_image('Morphed Image', morphed)
     
-    # Contour detection
-    contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # cv2.RETR_EXTERNAL retrieves only the extreme outer contours, cv2.CHAIN_APPROX_SIMPLE compresses the contour
+    # Contour detection: cv2.RETR_EXTERNAL retrieves only the extreme outer contours, cv2.CHAIN_APPROX_SIMPLE compresses the contour
+    contours, _ = cv2.findContours(morphed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Draw contours on original grayscale image
+    # Draw contours on original colour image
     result = imArrayG.copy()
-    # result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR) # Displaying contours over the colour image
-    # Displaying contours over the binary image   
-    result = cv2.drawContours(binary_image, contours, -1, (0, 255, 0), 2)
+    result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+    result = cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
     display_image('Contours on Grayscale Image', result)
 
-    # Minimum contour area threshold - removes small contours
+
+    # Minimum contour area threshold - removes contours smaller than the threshold
     min_contour_area = 0
 
-    # Filter contours based on area
+    # Filter contours based on area threshold
     filtered_contours = []
     for contour in contours:
         if cv2.contourArea(contour) > min_contour_area:
             filtered_contours.append(contour)
-            print('Cell Area: ' + str(cv2.contourArea(contour)))
+            print('Cell Area: ' + str(cv2.contourArea(contour))) # Output the area of the cells
 
     print('Average Cell Area: ' + str(np.mean([cv2.contourArea(contour) for contour in filtered_contours])))
-    # Draw contours on original colour image
-    # result_filtered = imArrayG.copy()
-    # result_filtered = cv2.cvtColor(result_filtered, cv2.COLOR_GRAY2BGR) # Displaying contours over the colour image
-    result_filtered = binary_image.copy()
+    
+    # Retrieve the original colour image so that the filtered contours can be drawn on it
+    result_filtered = imArrayG.copy()
+    result_filtered = cv2.cvtColor(result_filtered, cv2.COLOR_GRAY2BGR)
 
-    # for contour in filtered_contours:
-    #     cv2.drawContours(img, contours, -1, color=(255, 255, 255), thickness=cv2.FILLED)
-
-
-    # Draw contours and number them
+    # Draw filtered contours and number them
     for i in range(len(filtered_contours)):
-        
-        # Draw the contours on the image and fill with green colour
-        # cv2.drawContours(result_filtered, filtered_contours, -1, (0, 255, 0), thickness=cv2.FILLED)
-        cv2.drawContours(result_filtered, filtered_contours, -1, color=(128, 128, 128), thickness=cv2.FILLED)
-
-
-        # cv2.drawContours(result_filtered, filtered_contours, i, (0, 255, 0), 2)
-        # cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)    
-
-        # Output the cells (contours) area
-        # print('Cell ' + str(i+1) + ' area = ' + str(cv2.contourArea(filtered_contours[i])))
+        cv2.drawContours(result_filtered, filtered_contours, i, (0, 255, 0), 2)
+        cv2.putText(result_filtered, str(i+1), tuple(filtered_contours[i][0][0]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3)    
 
     print('Number of Cells Found: ' + str(len(filtered_contours)))
 
@@ -390,10 +384,11 @@ def cell_identification(binary_image, imArrayG):
 
 
 def main():
-    folder_path = 'Programming/raw_images/'
-    image_name = '4_00012'
+    # Image path and name for which the cell counting is to be performed
+    folder_path = 'Dataset'
+    image_name = '1_00001'
 
-    # Import image
+    # Import image and return image array
     imArray = image_import(folder_path, image_name)
 
     # Convert image to grayscale and convert to 8-bit integer
@@ -402,26 +397,28 @@ def main():
     # Adjust brightness and contrast to improve the dynamic range
     adjusted_image = dynamic_range(imArrayG)
 
+    # DWT parameters (number of levels and wavelet type)
     n = 4
     wavelet = 'db12'
     
-    # Complete DWT
-    # coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)
+    # DWT decomposition 
+    coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)
 
-    # Produce coefficient map
+    # Produce coefficient map for visualisation only
     # coeffs_map(coeffs)
 
     # Reconstruct images with only approximation and detail coefficients respectively
-    # prepared_image = reconstrucuted_images(coeffs, n, wavelet)
+    prepared_image = reconstrucuted_images(coeffs, n, wavelet)
 
     # Evaluate the performance before and after DWT applied
     # DWT_performance(imArrayG)
 
-    # Binary thresholding
-    # binary_image_simple = binary_thresholding(prepared_image)
+    # Binary thresholding using simple thresholding method
+    binary_image_simple = binary_thresholding(prepared_image)
 
     # Morphological operations and contour detection (cell identification)
-    # result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
+    result_filtered, filtered_contours = cell_identification(binary_image_simple, imArrayG)
     
+
 if __name__ == "__main__":
     main()
