@@ -159,26 +159,6 @@ def DWT_performance(imArrayG):
     plt.ylabel('Computation Time (s)')
     plt.title('Computation Time (s) against Wavelet Function')
     plt.show()
-    
-    # Print the wavelet functions
-    print("Wavelet Functions")
-    for i in range(len(wavelet_list)):
-        print(wavelet_list[i])
-
-    # Print the PSNR values for each wavelet function
-    print("PSNR Values for each Wavelet Function")
-    for i in range(len(wavelet_list)):
-        print(str(psnr_list[i]))
-
-    # Print the SSIM values for each wavelet function
-    print("SSIM Values for each Wavelet Function")
-    for i in range(len(wavelet_list)):
-        print(str(ssim_list[i]))
-    
-    # Print the computation time for each wavelet function
-    print("Computation Time for each Wavelet Function")
-    for i in range(len(wavelet_list)):
-        print(str(comp_time_list[i]))
 
 
 def main():
