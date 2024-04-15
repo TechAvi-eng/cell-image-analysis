@@ -16,8 +16,11 @@ from skimage.measure import shannon_entropy
 from matplotlib.font_manager import FontProperties
 
 
-# This program is used to classify the maturity of RPE cells using SVM and KMeans clustering
+# This program is used to classify the maturity of RPE cells using SVM and k-means clustering
 # The program uses Discrete Wavelet Transform to extract features from the images
+# The program also calculates a baseline classification using statistical features extracted from the raw pixel values
+# The program also visualises the decision boundaries of the SVM classifier using only 2 features
+# The program also performs the Elbow Method and Silhouette Method to determine the optimal number of clusters for k-means
 # Note: The full dataset must be placed within the 'Dataset' folder for the program to work
 
 def cell_image_import(input_folder_path):
@@ -38,6 +41,59 @@ def cell_image_import(input_folder_path):
     print('SUCCESS: Written list of images')
 
     return image_list
+
+
+def baseline_statistical_features(input_folder_path, image_list):
+    """
+    Extract statistical features from the raw pixel values for the baseline classification results
+    Parameters:
+        input_folder_path (str): folder path of images
+        image_list (list): list of image names
+    Returns:
+        cell_data (array): array containing statistical features
+        labels (list): list of labels
+    """
+    cell_data = []
+    labels = []
+    
+    # Loop through each image in the image list
+    for image in image_list:
+        image_path = os.path.join(input_folder_path, image)
+        imArray = cv2.imread(image_path)
+        imArrayG = cv2.cvtColor(imArray, cv2.COLOR_BGR2GRAY)
+        imArrayG = np.uint8(imArrayG)
+        
+        print('Image Imported:', image)
+
+        imArrayG = np.float64(imArrayG)
+        imArrayG = imArrayG.flatten()
+
+        # Extract statistical features from the raw pixel values
+        mean = np.mean(imArrayG)
+        std = np.std(imArrayG)
+        skewness = skew(imArrayG)
+        kurt = kurtosis(imArrayG)
+        median = np.median(imArrayG)
+        co_range = np.max(imArrayG) - np.min(imArrayG)
+        mean_square = np.mean(imArrayG ** 2)
+        rms = np.sqrt(mean_square)
+        entro = shannon_entropy(imArrayG)
+
+        new_row = [mean, std, skewness, kurt, median, co_range, rms, entro]
+        
+        cell_data.append(new_row)
+
+        # Append the label to the labels list
+        label = image[0]
+        label = int(label)
+        labels.append(label)
+
+    print('SUCCESS: Completed Feature Extraction')
+
+    cell_data = np.array(cell_data, dtype=float)
+    print('Cell Data:', cell_data.shape)
+
+    return cell_data, labels
 
 
 def discrete_wavelet_transform(input_folder_path, image_list):
@@ -157,7 +213,7 @@ def svm_classifier(data_train, data_test, label_train, label_test):
         label_train (list): training labels
         label_test (list): test labels
     """
-    #Create an svm Classifier
+    # Create an svm Classifier
     clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel, and balanced class weights for imbalanced dataset
 
     print('SUCCESS: Created SVM Classifier')
@@ -316,29 +372,33 @@ def main():
     # Create a list containing the image names
     image_list = cell_image_import(input_folder_path)
 
+    # Extract statistical features from the raw pixel values
+    raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
+    
     # Complete DWT processing and return data and labels
-    cell_data, labels = discrete_wavelet_transform(input_folder_path, image_list)
+    dwt_cell_data, dwt_labels = discrete_wavelet_transform(input_folder_path, image_list)
 
-    # Split data into training and test sets
-    data_train, data_test, label_train, label_test = data_split(cell_data, labels)
+    # Split the data into training and test sets
+    base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
+    dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test = data_split(dwt_cell_data, dwt_labels) # DWT Data
 
     # Complete SVM Classification
-    svm_classifier(data_train, data_test, label_train, label_test)
+    svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+    svm_classifier(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
     # Visualise SVM decision boundaries (performs 2 parameter classification only)
-    svm_classifier_visualisation(data_train, data_test, label_train, label_test)
+    # svm_classifier_visualisation(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test)
 
     # Perform Elbow Method to determine optimal number of clusters
-    elbow_method(data_train)
+    elbow_method(dwt_data_train)
 
     # Perform Silhouette Method to determine optimal number of clusters
-    silhouette_method(data_train)
+    silhouette_method(dwt_data_train)
 
     # Complete k-means Clustering
-    kmeans_clustering(data_train, data_test, label_train, label_test)
+    kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+    kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
 
 if __name__ == "__main__":
     main()
-
-
