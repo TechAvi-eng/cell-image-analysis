@@ -33,6 +33,11 @@ Dataset/4_00014.png
 Programming/.DS_Store
 Programming/Cell_Counting.py
 Programming/DWT_Performance.py
+Results/1_00001_Processed.png
+Results/4_00001_Processed.png
+Results/Cell_Types.png
+Results/Histogram_After.png
+Results/Histogram_Before.png
 cell_image_analysis.egg-info/PKG-INFO
 cell_image_analysis.egg-info/SOURCES.txt
 cell_image_analysis.egg-info/dependency_links.txt

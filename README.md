@@ -18,8 +18,8 @@ An example image of each cell morphology contained within the dataset is shown a
 2. Copy the full dataset of interest into the folder named `Dataset` (Can use the BioMediTech RPE dataset cited above or alternate cell data, but this may require parameter adjustment)
    - Note: Some sample images are included within the `Dataset` extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification</li>
 3. Install the code by entering `pip install -e .` into the command line.
-4. Install the depdencies by entering 'pip install -r requirements.txt' into the command line
-5. Run any `Cell_Counting.py`, `Cell_Classification.py` or `DWT_Performance.py` files (an overview of each file is provided below
+4. Install the depdencies by entering `pip install -r requirements.txt` into the command line
+5. Run any `Cell_Counting.py`, `Cell_Classification.py` or `DWT_Performance.py` files (an overview of each file is provided below)
 6. For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the 'main' function, which will avoid running the full pipelines functionality
 7. Docstring comments are provided under each function describing its purpose</li>
 
@@ -36,7 +36,7 @@ Below a list is provided for the different functionality provided within each Py
    1. DWT based multiresolution analysis for generating DWT decomposition coefficients
    2. Extracting statistical features from both raw pixel values and DWT decomposition coefficients
    3. SVM cell classification (supervised ML, therefore, labelled data required)
-   4. SVM decision boundary visualistation (completing 2 parameter classification
+   4. SVM decision boundary visualistation (completing 2 parameter classification)
    5. Elbow and Silhouette methods for optimal number of clusters determination</li>
    6. K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)
 3. DWT_Performance.py

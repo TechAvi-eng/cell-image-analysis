@@ -5,70 +5,66 @@ Requires-Python: >=3.11
 Description-Content-Type: text/markdown
 
 # Cell Image Analysis Pipeline
+
+<img src="Results/Cell_Types.png" width="500">
+
 ## Overview
 This repository contains the pipeline developed for the UCL Mechanical Engineering Third Year Project titled "Automated Processing of Cell Images Using the Discrete Wavelet Transform and Machine Learning".
+
+This project involved designing a pipeline for cell image analysis including pre-processing, cell identification, cell counting, and cell maturity classification.
 
 The pipeline has been developed and tested using Retinal pigment epithelium (RPE) cell images, and the BioMediTech RPE published dataset has been specifically used. Credit is given to the following paper for the RPE cell dataset: L. Nanni, M. Paci, F. L. C. Santos, H. Skottman, K. Juuti-Uusitalo, J. Hyttinen, Texture descriptors ensembles enable image-based classification of maturation of human stem cell-derived retinal pigmented epithelium, Plos One 2016.
 
 This dataset is publicly available at: https://figshare.com/articles/dataset/BioMediTech_RPE_dataset/2070109
 
-The pipeline has multiple features and functionality, highlighted below.
-<ul>
-  <li>Pre-Processing</li>
-      <ul>
-        <li>Grayscale and 8-bit image conversion</li>
-        <li>Dynamic Range adjustment algorithm</li>
-      </ul>
-  <li>Mutliresolution Analysis</li>
-      <ul>
-        <li>Performance evaluation of different DWT functions</li>
-        <li>Multi-level DWT application for denoising (removal of contaminant and noise frequencies)</li>
-        <li>Multi-level DWT application for generating decomposition coefficients for classification</li>
-      </ul>
-  <li>Cell Counting</li>
-      <ul>
-        <li>Binarisation thresholding of denoised reconstruced imaged</li>
-        <li>Application of morphological operations to improve binarised map</li>
-        <li>Countour identification for mapping of enclosed cells</li>
-      </ul>
-  <li>Cell Classification</li>
-      <ul>
-        <li>Application of Support Vector Machine (SVM) and k-means clustering algoriths</li>
-        <li>Baseline classification extracting statistical features from raw pixel values</li>
-        <li>Proposed classification extracting statistical features from DWT decomposition coefficients </li>
-        <li>Elbow and Silhouette methods for optimal cluster determination</li>
-      </ul>
+An example image of each cell morphology contained within the dataset is shown at the top of this file.
 
 ## Setup and Configuration Instructions
-<li>Download and open the full repository within an IDE</li>
-<li>Copy your full dataset of interest into a folder named 'Dataset' (either the BioMediTech RPE dataset cited above or alternate cell data)<li>
-  <ul>
-      <li>Note: A folder named `Dataset` is included within the repository with some example images extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification</li>
-  </ul>
-<li>Install the depdencies by typing and entering 'pip install -r requirements.txt' into the command line</li>
-<li>Run any of the 'Cell_Counting.py', 'Cell_Classification.py' or 'DWT_Performance.py' files (any overview of each file is provided below</li>
-<li>For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the 'main' function, which will avoid running the full pipelines functionality</li>
-<li>Docstring comments are provided under each function describing its purpose</li>
+1. Download and open the full repository within an IDE
+2. Copy the full dataset of interest into the folder named `Dataset` (Can use the BioMediTech RPE dataset cited above or alternate cell data, but this may require parameter adjustment)
+   - Note: Some sample images are included within the `Dataset` extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification</li>
+3. Install the code by entering `pip install -e .` into the command line.
+4. Install the depdencies by entering 'pip install -r requirements.txt' into the command line
+5. Run any `Cell_Counting.py`, `Cell_Classification.py` or `DWT_Performance.py` files (an overview of each file is provided below
+6. For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the 'main' function, which will avoid running the full pipelines functionality
+7. Docstring comments are provided under each function describing its purpose</li>
 
 ## Python Files
-Below a list is provided for the different functionality provided within each Python file contained within the repository, to help select the most appropriate file for your application.
-<li>Cell_Counting.py</li>
-  <ul>
-      <li>Dynamic Range adjustment algorithm</li>
-      <li>DWT based multiresolution analysis for denoising</li>
-      <li>Binarisation thresholding</li>
-      <li>Morphological operation application</li>
-      <li>Contour identification</li>
-  </ul>
-<li>Cell_Classification.py</li>
-  <ul>
-      <li>DWT based multiresolution analysis for generating DWT decomposition coefficients</li>
-      <li>Extracting statistical features from either raw pixel values or DWT decomposition coefficients</li>
-      <li>SVM cell classification (supervised ML, therefore, labelled data required)</li>
-      <li>SVM decision boundary visualistation</li>
-      <li>K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)</li>
-      <li>Elbow and Silhouette methods for optimal number of clusters determination</li>
-    </ul>
-  <li>DWT_Performance.py</li>
-    <ul>
-      <li>Structural Similarity Index Measure (SSIM), Peak Signal-to-Noise Ratio (PSNR) and computational time calculation for different DWT functions and vanishing moments</li>
+Below a list is provided for the different functionality provided within each Python file contained within the repository.
+1. Cell_Counting.py
+   1. Dynamic Range adjustment algorithm
+   2. DWT based multiresolution analysis for denoising
+   3. Binarisation thresholding
+   4. Morphological operation application
+   5. Contour identification
+   6. Cell mapping
+2. Cell_Classification.py
+   1. DWT based multiresolution analysis for generating DWT decomposition coefficients
+   2. Extracting statistical features from both raw pixel values and DWT decomposition coefficients
+   3. SVM cell classification (supervised ML, therefore, labelled data required)
+   4. SVM decision boundary visualistation (completing 2 parameter classification
+   5. Elbow and Silhouette methods for optimal number of clusters determination</li>
+   6. K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)
+3. DWT_Performance.py
+   - Following metrics are calculated for different DWT wavlet functions and vanishing moments
+   1. Structural Similarity Index Measure (SSIM)
+   2. Peak Signal-to-Noise Ratio (PSNR)
+   3. Computational time calculation for different DWT functions and vanishing moments
+
+## Results Achieved
+1. This pre-processing method proposed has achieved a `36.85%` improvement in dynamic range.
+2. The cell counting method proposed has achieved a `95.86%` accuracy for mixed morphology RPE cell images.
+3. The SVM supervised machine learning classification has achieved a `95.53%` accuracy for cell maturity classification when applying DWT based multiresolution analysis.
+
+A histogram before and after the pre-processing algorithm application is shown below.
+
+![Histogram_Before](Results/Histogram_Before.png)
+![Histogram_After](Results/Histogram_After.png)
+
+An example of the cell identification and mapping achieved for a fusiform morphology RPE cell image is shown below.
+
+<img src="Results/1_00001_Processed.png" width="500">
+
+An example of the cell identification and mapping achieved for a mixed morphology RPE cell image is shown below.
+
+<img src="Results/4_00001_Processed.png" width="500">
