@@ -1,4 +1,7 @@
 # Cell Image Analysis Pipeline
+
+<img src="Results/Cell_Types.png" width="500">
+
 ## Overview
 This repository contains the pipeline developed for the UCL Mechanical Engineering Third Year Project titled "Automated Processing of Cell Images Using the Discrete Wavelet Transform and Machine Learning".
 
@@ -7,6 +10,8 @@ This project involved designing a pipeline for cell image analysis including pre
 The pipeline has been developed and tested using Retinal pigment epithelium (RPE) cell images, and the BioMediTech RPE published dataset has been specifically used. Credit is given to the following paper for the RPE cell dataset: L. Nanni, M. Paci, F. L. C. Santos, H. Skottman, K. Juuti-Uusitalo, J. Hyttinen, Texture descriptors ensembles enable image-based classification of maturation of human stem cell-derived retinal pigmented epithelium, Plos One 2016.
 
 This dataset is publicly available at: https://figshare.com/articles/dataset/BioMediTech_RPE_dataset/2070109
+
+An example image of each cell morphology contained within the dataset is shown at the top of this file.
 
 ## Setup and Configuration Instructions
 1. Download and open the full repository within an IDE
@@ -52,8 +57,8 @@ A histogram before and after the pre-processing algorithm application is shown b
 
 An example of the cell identification and mapping achieved for a fusiform morphology RPE cell image is shown below.
 
-![1_00001_Processed](Results/1_00001_Processed.png)
+<img src="Results/1_00001_Processed.png" width="500">
 
 An example of the cell identification and mapping achieved for a mixed morphology RPE cell image is shown below.
 
-![4_00001_Processed](Results/4_00001_Processed.png)
+<img src="Results/4_00001_Processed.png" width="500">
