@@ -41,3 +41,19 @@ Below a list is provided for the different functionality provided within each Py
    3. Computational time calculation for different DWT functions and vanishing moments
 
 ## Results Achieved
+1. This pre-processing method proposed has achieved a `36.85%` improvement in dynamic range.
+2. The cell counting method proposed has achieved a `95.86%` accuracy for mixed morphology RPE cell images.
+3. The SVM supervised machine learning classification has achieved a `95.53%` accuracy for cell maturity classification when applying DWT based multiresolution analysis.
+
+A histogram before and after the pre-processing algorithm application is shown below.
+
+![Histogram_Before](Results/Histogram_Before.png)
+![Histogram_After](Results/Histogram_After.png)
+
+An example of the cell identification and mapping achieved for a fusiform morphology RPE cell image is shown below.
+
+![1_00001_Processed](Results/1_00001_Processed.png)
+
+An example of the cell identification and mapping achieved for a mixed morphology RPE cell image is shown below.
+
+![4_00001_Processed](Results/4_00001_Processed.png)
