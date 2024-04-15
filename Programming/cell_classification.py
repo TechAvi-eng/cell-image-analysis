@@ -9,7 +9,6 @@ from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn import metrics
 from sklearn.cluster import KMeans
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, silhouette_score
 from scipy.stats import skew, kurtosis
 from skimage.measure import shannon_entropy
