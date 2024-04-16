@@ -67,4 +67,4 @@ An example of the cell identification and mapping achieved for a mixed morpholog
 
 The confusion matrix generated for the cell morphology classification using the SVM classier is shown below.
 
-<img src="Results/Confusion Matrix Multi Resolution Analysis.png" width="500">
+<img src="Results/Confusion Matrix Images.png" width="500">
