@@ -5,6 +5,7 @@ import pywt.data
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn import metrics
@@ -114,7 +115,7 @@ def discrete_wavelet_transform(input_folder_path, image_list):
 
     print('STARTING DWT...')
     
-    # Loop through each image in the image list
+    # Loop through each image in the image list for first 5 images
     for image in image_list:
         image_path = os.path.join(input_folder_path, image)
         imArray = cv2.imread(image_path)
@@ -223,6 +224,20 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     # Outputting the accuracy of the SVM classification
     print("Accuracy:", metrics.accuracy_score(label_test, label_pred))
 
+    # Outputting the confusion matrix
+    confusion_matrix = metrics.confusion_matrix(label_test, label_pred)
+    confusion_matrix_df = pd.DataFrame(confusion_matrix, index=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"], columns=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"])
+    sns.heatmap(confusion_matrix_df, annot=True)
+    plt.title('Confusion Matrix', fontsize=12, fontname='Times New Roman')
+    plt.ylabel('Actual Morphology', fontsize=11, fontname='Times New Roman')
+    plt.xlabel('Predicted Morphology', fontsize=11, fontname='Times New Roman')
+    plt.xticks(fontname='Times New Roman', fontsize=8, rotation=45)
+    plt.yticks(fontname='Times New Roman', fontsize=8, rotation=0)
+    plt.gcf().set_size_inches(8.38/2.54, 6/2.54)
+    plt.gcf().set_dpi(600)
+    plt.tight_layout()
+    plt.show()
+
     return
 
 
@@ -263,7 +278,7 @@ def svm_classifier_visualisation(data_train, data_test, label_train, label_test)
     plt.contourf(x_axis, y_axis, boundary, alpha=0.4)
 
     # Plot data points
-    sns.scatterplot(x=data_train[:, 0], y=data_train[:, 1], hue=label_train, palette="Set1")
+    sns.scatterplot(x=data_train[:, 0], y=data_train[:, 1], hue=label_train, palette="Set2")
 
     # Graph formatting
     plt.xlabel('Mean', fontsize=11, fontname='Times New Roman')
@@ -272,7 +287,8 @@ def svm_classifier_visualisation(data_train, data_test, label_train, label_test)
     plt.xticks(fontsize=10, fontname='Times New Roman')
     plt.yticks(fontsize=10, fontname='Times New Roman')
     legend_font = FontProperties(family='Times New Roman', size=11)
-    legend = plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', labels=["Epithelioid", "Fusiform", "Mixed", "Cobblestone"], prop=legend_font)
+    # legend = plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', labels=["Epithelioid", "Fusiform", "Mixed", "Cobblestone"], prop=legend_font)
+    legend = plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', prop=legend_font)
     legend.set_title("Maturity Classification", prop={'size': 11, 'family': 'Times New Roman'})
     plt.gcf().set_size_inches(8.38/2.54, 6/2.54)
     plt.gcf().set_dpi(600)
@@ -359,19 +375,21 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
 
 def main():
     # Path to folder containing images
-    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
+    input_folder_path = 'Dataset'
     
     # Create a list containing the image names
     image_list = cell_image_import(input_folder_path)
     
     # Determining the functions which the user wants to run
-    clustering = input("Do you want to determine the optimal clusters? ('E' for Elbow/'S' for Silhouette/'B' for both): ")
+    clustering = input("Do you want to determine the optimal clusters? ('E' for Elbow/'S' for Silhouette/'B' for both/'N' for none): ")
     classification = input("What classification do you want to perfom? ('S' for SVM/'K' for k-means/'B' for both): ")
     
     # Visualisation of SVM decision boundaries only made available with less than 200 images
     # otherwise very long computation run time
     if len(image_list) < 200:
         visualisation = input("Do you want to visualise the SVM decision boundaries? ('Y'/'N'): ")
+    else:
+        visualisation = 'N'
 
     # Extract statistical features from the raw pixel values
     raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
@@ -382,7 +400,7 @@ def main():
     # Split the data into training and test sets
     print('\nBaseline Data')
     base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
-    print('\Multiresolution Analysis Data')
+    print('\nMultiresolution Analysis Data')
     dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test = data_split(dwt_cell_data, dwt_labels) # DWT Data
 
     # Complete SVM Classification if specified
