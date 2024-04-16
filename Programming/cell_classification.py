@@ -225,9 +225,10 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     print("Accuracy:", metrics.accuracy_score(label_test, label_pred))
 
     # Outputting the confusion matrix
+    # Make the values within the confusion matrix full and not scientific notation
     confusion_matrix = metrics.confusion_matrix(label_test, label_pred)
     confusion_matrix_df = pd.DataFrame(confusion_matrix, index=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"], columns=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"])
-    sns.heatmap(confusion_matrix_df, annot=True)
+    sns.heatmap(confusion_matrix_df, annot=True, fmt='d')
     plt.title('Confusion Matrix', fontsize=12, fontname='Times New Roman')
     plt.ylabel('Actual Morphology', fontsize=11, fontname='Times New Roman')
     plt.xlabel('Predicted Morphology', fontsize=11, fontname='Times New Roman')
@@ -381,13 +382,13 @@ def main():
     image_list = cell_image_import(input_folder_path)
     
     # Determining the functions which the user wants to run
-    clustering = input("Do you want to determine the optimal clusters? ('E' for Elbow/'S' for Silhouette/'B' for both/'N' for none): ")
     classification = input("What classification do you want to perfom? ('S' for SVM/'K' for k-means/'B' for both): ")
+    clustering = input("How do you want to determine the optimal clusters? ('E' for Elbow/'S' for Silhouette/'B' for both/'N' for none): ")
     
     # Visualisation of SVM decision boundaries only made available with less than 200 images
     # otherwise very long computation run time
     if len(image_list) < 200:
-        visualisation = input("Do you want to visualise the SVM decision boundaries? ('Y'/'N'): ")
+        visualisation = input("Do you want to visualise SVM decision boundaries? ('Y'/'N'): ")
     else:
         visualisation = 'N'
 
@@ -425,8 +426,8 @@ def main():
 
     # Complete k-means Clustering
     if classification == 'K' or classification == 'B':
-        print('\nBaseline K-Means Clustering')
-        kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        # print('\nBaseline K-Means Clustering')
+        # kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
         print('\nMultiresolution Analysis K-Means Clustering')
         kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
