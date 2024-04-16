@@ -64,3 +64,7 @@ An example of the cell identification and mapping achieved for a fusiform morpho
 An example of the cell identification and mapping achieved for a mixed morphology RPE cell image is shown below.
 
 <img src="Results/4_00001_Processed.png" width="500">
+
+The confusion matrix generated for the cell morphology classification using the SVM classier is shown below.
+
+<img src="Results/Confusion Matrix Multi Resolution Analysis.png" width="500">
