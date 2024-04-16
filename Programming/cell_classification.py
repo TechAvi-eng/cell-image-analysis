@@ -225,11 +225,12 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     print("Accuracy:", metrics.accuracy_score(label_test, label_pred))
 
     # Outputting the confusion matrix
-    # Make the values within the confusion matrix full and not scientific notation
     confusion_matrix = metrics.confusion_matrix(label_test, label_pred)
     confusion_matrix_df = pd.DataFrame(confusion_matrix, index=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"], columns=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"])
     sns.heatmap(confusion_matrix_df, annot=True, fmt='d')
-    plt.title('Confusion Matrix', fontsize=12, fontname='Times New Roman')
+
+    # Customize plot properties
+    plt.title('Confusion Matrix for\nCell Image Classification', fontsize=12, fontname='Times New Roman')
     plt.ylabel('Actual Morphology', fontsize=11, fontname='Times New Roman')
     plt.xlabel('Predicted Morphology', fontsize=11, fontname='Times New Roman')
     plt.xticks(fontname='Times New Roman', fontsize=8, rotation=45)
@@ -426,8 +427,8 @@ def main():
 
     # Complete k-means Clustering
     if classification == 'K' or classification == 'B':
-        # print('\nBaseline K-Means Clustering')
-        # kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        print('\nBaseline K-Means Clustering')
+        kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
         print('\nMultiresolution Analysis K-Means Clustering')
         kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
