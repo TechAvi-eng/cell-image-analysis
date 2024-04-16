@@ -16,12 +16,13 @@ An example image of each cell morphology contained within the dataset is shown a
 ## Setup and Configuration Instructions
 1. Download and open the full repository within an IDE
 2. Copy the full dataset of interest into the folder named `Dataset` (Can use the BioMediTech RPE dataset cited above or alternate cell data, but this may require parameter adjustment)
-   - Note: Some sample images are included within the `Dataset` extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification</li>
+   - Note: Some sample images are included within the `Dataset` extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification.
 3. Install the code by entering `pip install -e .` into the command line.
 4. Install the depdencies by entering `pip install -r requirements.txt` into the command line
 5. Run any `Cell_Counting.py`, `Cell_Classification.py` or `DWT_Performance.py` files (an overview of each file is provided below)
 6. For specific applications, e.g. only running the Elbow and Silhouette methods, please specify the function required when prompted in the terminal. Further details can be found in the `main` function body.
-7. Docstring comments are provided under each function describing its purpose</li>
+   - Note: The SVM visualisation of decision boundaries in `Cell_Classification.py` is only made available if the dataset used is less than 200 images, otherwise the computational run time required is very long.
+8. Docstring comments are provided under each function describing its purpose</li>
 
 ## Python Files
 Below a list is provided for the different functionality provided within each Python file contained within the repository.
