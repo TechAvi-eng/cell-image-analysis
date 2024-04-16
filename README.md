@@ -20,7 +20,7 @@ An example image of each cell morphology contained within the dataset is shown a
 3. Install the code by entering `pip install -e .` into the command line.
 4. Install the depdencies by entering `pip install -r requirements.txt` into the command line
 5. Run any `Cell_Counting.py`, `Cell_Classification.py` or `DWT_Performance.py` files (an overview of each file is provided below)
-6. For specific applications, e.g. only running the Elbow and Silhouette methods, please comment out the unnecessary functions in the 'main' function, which will avoid running the full pipelines functionality
+6. For specific applications, e.g. only running the Elbow and Silhouette methods, please specify the function required when prompted in the terminal. Further details can be found in the `main` function body.
 7. Docstring comments are provided under each function describing its purpose</li>
 
 ## Python Files

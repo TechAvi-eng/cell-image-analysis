@@ -196,7 +196,6 @@ def data_split(cell_data, labels):
     # Split dataset into training set and test set
     data_train, data_test, label_train, label_test = train_test_split(cell_data, labels, test_size=0.3,random_state=109) # 70% training and 30% test
 
-    print('SUCCESS: Split data into training and test sets')
     print('Training Data Size:', data_train.shape)
     print('Test Data Size:', data_test.shape)
 
@@ -215,18 +214,13 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     # Create an svm Classifier
     clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel, and balanced class weights for imbalanced dataset
 
-    print('SUCCESS: Created SVM Classifier')
-
-    print('STARTING Training SVM Classifier...')
     # Train the model using the training sets
     clf.fit(data_train, label_train)
-
-    print('SUCCESS: Trained SVM Classifier')
 
     # Predict the response for test dataset
     label_pred = clf.predict(data_test)
 
-    # Model Accuracy: how often is the classifier correct?
+    # Outputting the accuracy of the SVM classification
     print("Accuracy:", metrics.accuracy_score(label_test, label_pred))
 
     return
@@ -250,12 +244,11 @@ def svm_classifier_visualisation(data_train, data_test, label_train, label_test)
     
     # Train the model using the training sets
     classifier.fit(data_train, label_train)
-
-    print('SUCCESS: Trained SVM Classifier')
     
     # Predict the response for test dataset
     label_pred = classifier.predict(data_test)
 
+    # Outputting the accuracy of the SVM classification
     print("Accuracy for 2 Feature Classification:",metrics.accuracy_score(label_test, label_pred))
 
     # Generate a grid of points to plot decision boundaries
@@ -366,10 +359,19 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
 
 def main():
     # Path to folder containing images
-    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Subwindows'
+    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
     
     # Create a list containing the image names
     image_list = cell_image_import(input_folder_path)
+    
+    # Determining the functions which the user wants to run
+    clustering = input("Do you want to determine the optimal clusters? ('E' for Elbow/'S' for Silhouette/'B' for both): ")
+    classification = input("What classification do you want to perfom? ('S' for SVM/'K' for k-means/'B' for both): ")
+    
+    # Visualisation of SVM decision boundaries only made available with less than 200 images
+    # otherwise very long computation run time
+    if len(image_list) < 200:
+        visualisation = input("Do you want to visualise the SVM decision boundaries? ('Y'/'N'): ")
 
     # Extract statistical features from the raw pixel values
     raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
@@ -378,25 +380,37 @@ def main():
     dwt_cell_data, dwt_labels = discrete_wavelet_transform(input_folder_path, image_list)
 
     # Split the data into training and test sets
+    print('\nBaseline Data')
     base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
+    print('\Multiresolution Analysis Data')
     dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test = data_split(dwt_cell_data, dwt_labels) # DWT Data
 
-    # Complete SVM Classification
-    svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
-    svm_classifier(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
+    # Complete SVM Classification if specified
+    if classification == 'S' or classification == 'B':
+        print('\nBaseline SVM Classification')
+        svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        print('\nMultiresolution Analysis SVM Classification')
+        svm_classifier(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
     # Visualise SVM decision boundaries (performs 2 parameter classification only)
-    # svm_classifier_visualisation(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test)
+    if visualisation == 'Y':
+        print('\nMultiresolution Visualisation SVM Classification')
+        svm_classifier_visualisation(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test)
 
     # Perform Elbow Method to determine optimal number of clusters
-    elbow_method(dwt_data_train)
+    if clustering == 'E' or clustering == 'B':
+        elbow_method(dwt_data_train)
 
     # Perform Silhouette Method to determine optimal number of clusters
-    silhouette_method(dwt_data_train)
+    if clustering == 'S' or clustering == 'B':
+        silhouette_method(dwt_data_train)
 
     # Complete k-means Clustering
-    kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
-    kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
+    if classification == 'K' or classification == 'B':
+        print('\nBaseline K-Means Clustering')
+        kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        print('\nMultiresolution Analysis K-Means Clustering')
+        kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
 
 if __name__ == "__main__":

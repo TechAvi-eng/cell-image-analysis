@@ -170,8 +170,6 @@ def reconstrucuted_images(coeffs, n, wavelet):
 
     reconstructed_image_A = np.uint8(reconstructed_image_A) # convert to 8-bit integer image
 
-    display_image('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
-
     image_info('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
     
 
@@ -274,6 +272,9 @@ def main():
     folder_path = 'Dataset'
     image_name = '1_00001'
 
+    # Recieving user input to specify the functions to be run
+    coefficients_map = input('Do you want to display the coefficients map? (Y/N): ')
+
     # Import image and return image array
     imArray = image_import(folder_path, image_name)
 
@@ -290,8 +291,10 @@ def main():
     # DWT decomposition 
     coeffs = discrete_wavelet_transform(adjusted_image, n, wavelet)
 
-    # Produce coefficient map for visualisation only
-    # coeffs_map(coeffs)
+    # Produce coefficient map for visualisation only if user input is "Y"
+    if coefficients_map == "Y":
+        coeffs_map_input = discrete_wavelet_transform(adjusted_image, n, wavelet)
+        coeffs_map(coeffs_map_input)
 
     # Reconstruct images with only approximation and detail coefficients respectively
     prepared_image = reconstrucuted_images(coeffs, n, wavelet)
