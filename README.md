@@ -37,9 +37,10 @@ Below a list is provided for the different functionality provided within each Py
    1. DWT based multiresolution analysis for generating DWT decomposition coefficients
    2. Extracting statistical features from both raw pixel values and DWT decomposition coefficients
    3. SVM cell classification (supervised ML, therefore, labelled data required)
-   4. SVM decision boundary visualistation (completing 2 parameter classification)
-   5. Elbow and Silhouette methods for optimal number of clusters determination</li>
-   6. K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)
+   4. Confusion Matrix output demonstrating which morphology clusters have misprediction
+   5. SVM decision boundary visualistation (completing 2 parameter classification)
+   6. Elbow and Silhouette methods for optimal number of clusters determination</li>
+   7. K-means clustering cell classification (unsupervised ML, therefore, labelled data not required)
 3. `DWT_Performance.py`
    - Following metrics are calculated for different DWT wavlet functions and vanishing moments
    1. Structural Similarity Index Measure (SSIM)
