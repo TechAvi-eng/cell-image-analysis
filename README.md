@@ -69,6 +69,6 @@ An example of the cell identification and mapping achieved for a mixed morpholog
 
 <img src="Results/4_00001_Processed.png" width="500">
 
-The confusion matrix generated for the cell morphology classification using the SVM classier is shown below.
+The confusion matrix generated for the cell morphology classification using the SVM classier is shown below on the left, and the confusion matrix for the k-means clustering classifer is shown below on the right.
 
-<img src="Results/Confusion Matrix Images.png" width="500">
+<img src="Results/Confusion_Matrices.png" width="500">
