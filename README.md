@@ -16,7 +16,7 @@ An example image of each cell morphology contained within the dataset is shown a
 **Note: The full dataset should be downloaded and added within the `dataset` folder before commencing classiciation. The full dataset is not included within the repository due to maximum file size limitations.**
 
 ## Setup and Configuration Instructions
-1. Download and open the full repository within an IDE.
+1. Download the full repository as a .zip file and open within an IDE.
 2. Copy the full dataset of interest into the folder named `Dataset`. (The BioMediTech RPE dataset cited above can be used or alternate cell data, but this may require parameter adjustment)
    - Note: Some sample images are included within the `Dataset` extracted from the BioMediTech RPE dataset. Please replace these with the full dataset before attempting classification to replicate the results achieved.
 3. Install the code by entering `pip install -e .` into the command line.
