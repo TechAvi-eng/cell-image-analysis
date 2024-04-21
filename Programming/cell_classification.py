@@ -205,7 +205,7 @@ def data_split(cell_data, labels):
 
 def svm_classifier(data_train, data_test, label_train, label_test):
     """
-    Complete SVM Classification using the training and test sets
+    Complete SVM classification using the training and test sets
     Parameters:
         data_train (array): training data
         data_test (array): test data
@@ -224,13 +224,34 @@ def svm_classifier(data_train, data_test, label_train, label_test):
     # Outputting the accuracy of the SVM classification
     print("Accuracy:", metrics.accuracy_score(label_test, label_pred))
 
+    return
+
+
+def svm_confusion_matrix(data_train, data_test, label_train, label_test):
+    """
+    Produce a confusion matrix for the SVM classifier
+    Parameters:
+        data_train (array): training data
+        data_test (array): test data
+        label_train (list): training labels
+        label_test (list): test labels
+    """
+    # Producing and training classifier for confusion matrix
+    clf = svm.SVC(kernel='linear', class_weight='balanced') # Linear Kernel, and balanced class weights for imbalanced dataset
+
+    # Train the model using the training sets
+    clf.fit(data_train, label_train)
+
+    # Predict the response for test dataset
+    label_pred = clf.predict(data_test)
+
     # Outputting the confusion matrix
     confusion_matrix = metrics.confusion_matrix(label_test, label_pred)
     confusion_matrix_df = pd.DataFrame(confusion_matrix, index=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"], columns=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"])
     sns.heatmap(confusion_matrix_df, annot=True, fmt='d')
 
-    # Customize plot properties
-    plt.title('Confusion Matrix for\nCell Image Classification', fontsize=12, fontname='Times New Roman')
+    # Customise plot properties
+    plt.title('SVM Confusion Matrix for\nCell Image Classification', fontsize=12, fontname='Times New Roman')
     plt.ylabel('Actual Morphology', fontsize=11, fontname='Times New Roman')
     plt.xlabel('Predicted Morphology', fontsize=11, fontname='Times New Roman')
     plt.xticks(fontname='Times New Roman', fontsize=8, rotation=45)
@@ -362,53 +383,101 @@ def kmeans_clustering(data_train, data_test, label_train, label_test):
         label_train (list): training labels
         label_test (list): test labels
     """
-    # Number of clusters set to 4 (maturity classes) and dandom state selected for reproducibility
-    kmeans = KMeans(n_clusters=4, random_state=42) 
-    kmeans.fit(data_train)
 
-    test_clusters = kmeans.predict(data_test)
+    # Number of clusters set to 4 (maturity classes) and random state selected for reproducibility
+    kmeans_clf = KMeans(n_clusters=4, random_state=42)
 
-    test_accuracy = accuracy_score(label_test, test_clusters)
+    # Train the model using the training sets
+    kmeans_clf.fit(data_train)
+
+    # Predict the response for test dataset
+    label_pred = kmeans_clf.predict(data_test)
+
+    # Calculate the accuracy of the k-means classification
+    test_accuracy = accuracy_score(label_test, label_pred)
 
     print("Accuracy for K Means:", test_accuracy)
 
     return
 
 
+def kmeans_confusion_matrix(data_train, data_test, label_test):
+    """
+    Produce a confusion matrix for the k-means classifier
+    Parameters:
+        data_train (array): training data
+        data_test (array): test data
+        label_train (list): training labels
+        label_test (list): test labels
+    """
+    # Producing and training classifier for confusion matrix
+    kmeans_clf = KMeans(n_clusters=4, random_state=32)
+
+    # Train the model using the training sets
+    kmeans_clf.fit(data_train)
+
+    # Predict the response for test dataset
+    label_pred = kmeans_clf.predict(data_test)
+
+    # Incrementing the labels to match the original labels
+    for i in range(len(label_pred)):
+        label_pred[i] = label_pred[i] + 1
+
+    # Generate the confusion matrix
+    confusion_matrix = metrics.confusion_matrix(label_test, label_pred)
+
+    # Create DataFrame with confusion matrix
+    confusion_matrix_df = pd.DataFrame(confusion_matrix, index=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"], columns=["Fusiform", "Epithelioid", "Cobblestone", "Mixed"])
+    sns.heatmap(confusion_matrix_df, annot=True, fmt='d')
+
+    # Customise plot properties
+    plt.title('K-means Confusion Matrix for\nCell Image Classification', fontsize=12, fontname='Times New Roman')
+    plt.ylabel('Actual Morphology', fontsize=11, fontname='Times New Roman')
+    plt.xlabel('Predicted Morphology', fontsize=11, fontname='Times New Roman')
+    plt.xticks(fontname='Times New Roman', fontsize=8, rotation=45)
+    plt.yticks(fontname='Times New Roman', fontsize=8, rotation=0)
+    plt.gcf().set_size_inches(8.38/2.54, 6/2.54)
+    plt.gcf().set_dpi(600)
+    plt.tight_layout()
+    plt.show()
+
+    return
+
+
 def main():
     # Path to folder containing images
-    input_folder_path = 'Dataset'
+    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
     
     # Create a list containing the image names
     image_list = cell_image_import(input_folder_path)
     
     # Determining the functions which the user wants to run
-    classification = input("What classification do you want to perfom? ('S' for SVM/'K' for k-means/'B' for both): ")
+    classification = input("What classification algorithm do you want to use? ('S' for SVM/'K' for k-means/'B' for both): ")
     clustering = input("How do you want to determine the optimal clusters? ('E' for Elbow/'S' for Silhouette/'B' for both/'N' for none): ")
-    
-    # Visualisation of SVM decision boundaries only made available with less than 200 images
-    # otherwise very long computation run time
+    confusion = input("Do you want to produce confusion matrices? ('S' for SVM/'K' for k-means/'B' for both/'N' for none): ")
+
+    # Visualisation of SVM decision boundaries only made available with less than 200 images otherwise very long computation run time
     if len(image_list) < 200:
         visualisation = input("Do you want to visualise SVM decision boundaries? ('Y'/'N'): ")
     else:
         visualisation = 'N'
 
     # Extract statistical features from the raw pixel values
-    raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
+    # raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
     
     # Complete DWT processing and return data and labels
     dwt_cell_data, dwt_labels = discrete_wavelet_transform(input_folder_path, image_list)
 
     # Split the data into training and test sets
-    print('\nBaseline Data')
-    base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
+    # print('\nBaseline Data')
+    # base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
     print('\nMultiresolution Analysis Data')
     dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test = data_split(dwt_cell_data, dwt_labels) # DWT Data
 
     # Complete SVM Classification if specified
     if classification == 'S' or classification == 'B':
-        print('\nBaseline SVM Classification')
-        svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        # print('\nBaseline SVM Classification')
+        # svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
         print('\nMultiresolution Analysis SVM Classification')
         svm_classifier(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
@@ -427,11 +496,17 @@ def main():
 
     # Complete k-means Clustering
     if classification == 'K' or classification == 'B':
-        print('\nBaseline K-Means Clustering')
-        kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        # print('\nBaseline K-Means Clustering')
+        # kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
         print('\nMultiresolution Analysis K-Means Clustering')
         kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
+    # Producing confusion matrices for SVM and k-means classification
+    if confusion == "S" or confusion == "B":
+        svm_confusion_matrix(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test)
+
+    if confusion == "K" or confusion == "B":
+        kmeans_confusion_matrix(dwt_data_train, dwt_data_test, dwt_label_test)
 
 if __name__ == "__main__":
     main()
