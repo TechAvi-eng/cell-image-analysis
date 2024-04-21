@@ -446,7 +446,7 @@ def kmeans_confusion_matrix(data_train, data_test, label_test):
 
 def main():
     # Path to folder containing images
-    input_folder_path = '/Users/nikhildhulashia/Library/CloudStorage/OneDrive-UniversityCollegeLondon/Third Year/Individual Project/Datasets/RPE_dataset/Images'
+    input_folder_path = 'Dataset'
     
     # Create a list containing the image names
     image_list = cell_image_import(input_folder_path)
@@ -463,21 +463,21 @@ def main():
         visualisation = 'N'
 
     # Extract statistical features from the raw pixel values
-    # raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
+    raw_cell_data, raw_labels = baseline_statistical_features(input_folder_path, image_list)
     
     # Complete DWT processing and return data and labels
     dwt_cell_data, dwt_labels = discrete_wavelet_transform(input_folder_path, image_list)
 
     # Split the data into training and test sets
-    # print('\nBaseline Data')
-    # base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
+    print('\nBaseline Data')
+    base_data_train, base_data_test, base_label_train, base_label_test = data_split(raw_cell_data, raw_labels) # Baseline Data
     print('\nMultiresolution Analysis Data')
     dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test = data_split(dwt_cell_data, dwt_labels) # DWT Data
 
     # Complete SVM Classification if specified
     if classification == 'S' or classification == 'B':
-        # print('\nBaseline SVM Classification')
-        # svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        print('\nBaseline SVM Classification')
+        svm_classifier(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
         print('\nMultiresolution Analysis SVM Classification')
         svm_classifier(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
@@ -496,8 +496,8 @@ def main():
 
     # Complete k-means Clustering
     if classification == 'K' or classification == 'B':
-        # print('\nBaseline K-Means Clustering')
-        # kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
+        print('\nBaseline K-Means Clustering')
+        kmeans_clustering(base_data_train, base_data_test, base_label_train, base_label_test) # Baseline Data
         print('\nMultiresolution Analysis K-Means Clustering')
         kmeans_clustering(dwt_data_train, dwt_data_test, dwt_label_train, dwt_label_test) # DWT Data
 
