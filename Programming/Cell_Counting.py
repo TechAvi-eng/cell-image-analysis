@@ -68,8 +68,6 @@ def image_import(folder_path, image_name):
 
     display_image('Original Image', imArray) # Display the original image
 
-    image_info('Original Image', imArray) # Display the image information
-
     return imArray
 
 
@@ -169,8 +167,6 @@ def reconstrucuted_images(coeffs, n, wavelet):
     reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet) # reconstruct image using inverse DWT
 
     reconstructed_image_A = np.uint8(reconstructed_image_A) # convert to 8-bit integer image
-
-    image_info('Approx Coefficients Only Reconstructed Image', reconstructed_image_A)
     
 
     # Setting Detail Coefficients to Zero (for Visualisation only)
@@ -195,7 +191,7 @@ def binary_thresholding(prepared_image):
     Returns:
         thresh (array): thresholded image array
     """
-    threshold = prepared_image.mean() - 1/2 * prepared_image.std() - 2 # Calculate threshold value
+    threshold = prepared_image.mean() - 1/2 * prepared_image.std() # Calculate threshold value
     
     # If pixel value > threshold the  set to 0. Inverted as cv2.findContours() requires white objects on black background
     _, thresh = cv2.threshold(prepared_image, threshold, 255, cv2.THRESH_BINARY_INV)
@@ -237,7 +233,6 @@ def cell_identification(binary_image, imArrayG):
     result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
     result = cv2.drawContours(result, contours, -1, (0, 255, 0), 2)
     display_image('Contours on Grayscale Image', result)
-
 
     # Minimum contour area threshold - removes contours smaller than the threshold
     min_contour_area = 0
