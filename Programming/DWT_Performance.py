@@ -7,9 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
-# This program evaluates the performance of Discrete Wavelet Transform (DWT) on an image denoising
+# This program evaluates the performance of Discrete Wavelet Transform (DWT) functions for image denoising
 # The performance is evaluated using the following metrics:
-# Peak Signal-To-Noise Ratio (PSNR), Structural Similarity (SSIM) and computational time metrics
+# Peak Signal-To-Noise Ratio (PSNR), Structural Similarity (SSIM) and computational time
 
 def image_import(folder_path, image_name):
     """
@@ -77,61 +77,52 @@ def DWT_performance(imArrayG):
     Parameters:
         imArrayG (array): grayscale 8-bit image array
     """
-
-    wavelet_list = pywt.wavelist(kind='discrete') # List of wavelet functions
+    # List of wavelet functions
+    wavelet_list = pywt.wavelist(kind='discrete')
     
     # Empty lists to store PSNR, SSIM values, and computing time results
-    psnr_list = np.zeros((len(wavelet_list), 3))
-    ssim_list = np.zeros((len(wavelet_list), 3))
-    comp_time_list = np.zeros((len(wavelet_list), 3))
-    
-    psnr_highest_name = ''
-    ssim_highest_name = ''
+    psnr_list = np.zeros((len(wavelet_list)))
+    ssim_list = np.zeros((len(wavelet_list)))
+    comp_time_list = np.zeros((len(wavelet_list)))
 
-    psnr_highest = 0
-    ssim_highest = 0
+    # Number of levels of DWT decomposition
+    n = 4 
 
-    for n in range(4,5):
-        for i in wavelet_list:
-            wavelet = i
+    for i in wavelet_list: 
+        wavelet = i
 
-            start = time.time() # Start the timer for computation time
+        # Start the timer for computation time
+        start = time.time() 
 
-            coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) # Complete DWT
+        # Complete DWT decomposition
+        coeffs = pywt.wavedec2(imArrayG, wavelet, level=n) 
+        coeffs_A = list(coeffs) 
 
-            coeffs_A = list(coeffs)
+        # Remove the high frequency coefficients
+        for y in range(1, n+1):
+            coeffs_A[y] = tuple(np.zeros_like(element) for element in coeffs[y])
 
-            for y in range(1, n+1):
-                coeffs_A[y] = tuple(np.zeros_like(element) for element in coeffs[y])
+        # Reconstruct the image using the inverse DWT function
+        reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
+        reconstructed_image_A = np.uint8(reconstructed_image_A)
 
-            reconstructed_image_A = pywt.waverec2(tuple(coeffs_A), wavelet)
+        # End timer and calculate computation time
+        end = time.time()
+        comp_time = end - start
 
-            reconstructed_image_A = np.uint8(reconstructed_image_A)
+        # Calculate PSNR
+        psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A)
 
-            end = time.time() # End the timer for computation time
-            comp_time = end - start # Calculate the computation time
+        # Calculate SSIM
+        ssim_A = structural_similarity(imArrayG, reconstructed_image_A)
 
-            psnr_A = peak_signal_noise_ratio(imArrayG, reconstructed_image_A) # Calculate PSNR
-            ssim_A = structural_similarity(imArrayG, reconstructed_image_A) # Calculate SSIM
+        # Store PSNR, SSIM and computational time values in the predefined lists
+        psnr_list[wavelet_list.index(wavelet)] = psnr_A
+        ssim_list[wavelet_list.index(wavelet)] = ssim_A
+        comp_time_list[wavelet_list.index(wavelet)] = comp_time
 
-            if psnr_A > psnr_highest:
-                psnr_highest = psnr_A
-                psnr_highest_name = wavelet + ' at ' + str(n) + ' levels'
-            
-            if ssim_A > ssim_highest:
-                ssim_highest = ssim_A
-                ssim_highest_name = wavelet + ' at ' + str(n) + ' levels'
-
-            # Store PSNR, SSIM and computational time values in the lists
-            psnr_list[wavelet_list.index(wavelet)][n-3] = psnr_A
-            ssim_list[wavelet_list.index(wavelet)][n-3] = ssim_A
-            comp_time_list[wavelet_list.index(wavelet)][n-3] = comp_time
-
-            print("Completed " + str(wavelet) + " at " + str(n) + " levels")
-
-    # Output the wavelet function that gives the highest PSNR and SSIM
-    print("Highest PSNR: " + psnr_highest_name + " with PSNR of " + str(psnr_highest))
-    print("Highest SSIM: " + ssim_highest_name + " with SSIM of " + str(ssim_highest))
+        # Output the progress 
+        print("Completed " + str(wavelet) + " at " + str(n) + " levels")
 
     # Produce a graph of the PSNR against the wavelet used
     plt.figure(figsize=(10,7))
